@@ -10,46 +10,46 @@ def v0(x, y, rho=80, delta=0.05):
     return delta * sin(2 * pi * (x + 0.25))
 
 dt = 2e-2
-t_end = 1.0
-M = 20
+t_end = 10e-2
+M = 64
 h = 1/M
 
-# initial conditions
-dom = linspace(0, 1, M + 1)
-x_mesh, y_mesh = meshgrid(dom, dom)
+x_dom = linspace(0.0, 1.0, M + 1)
+y_dom = linspace(0.0, 1.0, M + 1)
+x_m, y_m = meshgrid(x_dom, y_dom)
 
-# initial particle positions
-x, y = x_mesh.copy().flatten(), y_mesh.copy().flatten()
+u_m, v_m = u0(x_m, y_m), v0(x_m, y_m)
+w_m = vorticity(u_m, v_m)
 
 for t in arange(0.0, t_end, dt):
-    u, v = u0(x, y), v0(x, y)
-    w = vorticity(u, v)
+    # integrate vorticity
+    print "DIFFUSION"
+    w_m += diffusion(w_m, h)
+    print "RESHAPE"
+    w_p = w_m.reshape(w_m.size)
 
-    # diffusion?
+    # integrate velocity
+    print "POISSON SOURCE"
+    f, g = poisson_source(w_m)
+    print "POISSON SOLVE"
+    u, v = poisson_solve(f, g, h)
 
     # final particles' positions
-    x = x + u * dt
-    y = y + v * dt
+    print "INTEGRATE"
+    x_p = (x_m + u_m * dt).reshape(x_m.size)
+    y_p = (y_m + v_m * dt).reshape(y_m.size)
 
-    # remesh vorticiy
-    w_mesh = remesh(w, x, y, x_mesh, y_mesh, h)
+    # remesh vorticity
+    print "REMESH"
+    w_mesh = remesh(w_p, x_p, y_p, x_m, y_m, h)
 
-    
-
-
-    
-
-
-
+    print t,
 
     
 
 
-
-
-
-contourf(x, y, rot)
-quiver(x, y, u0, v0)
+contourf(x_m, y_m, rot)
+quiver(x_m, y_m, u0, v0)
 
 show()
 
