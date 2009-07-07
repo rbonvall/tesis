@@ -5,6 +5,7 @@ from numpy import *
 import scipy.signal
 import scipy.sparse
 import scipy.linalg.iterative
+from math import ceil
 
 _m6_funclist = [
     (-1/88)  * poly1d((1, -1)) * poly1d((60, -87, -87, 88, 88)),
@@ -114,7 +115,7 @@ def BROKEN_remesh(w_p, x_p, y_p, x_mesh, y_mesh, h):
     return w_mesh
 
 
-def remesh(w_p, x_p, y_p, x_m, y_m, h):
+def SLOW_remesh(w_p, x_p, y_p, x_m, y_m, h):
     #mesh_width, mesh_height = x_m.shape
     nr_particles = w_p.size
 
@@ -129,6 +130,24 @@ def remesh(w_p, x_p, y_p, x_m, y_m, h):
     return w_m
 
     
+def remesh(w_p, x_p, y_p, x_m, y_m, h):
+    #mesh_width, mesh_height = x_m.shape
+    nr_particles = w_p.size
+
+    w_m = zeros_like(x_m)
+    h_inv = 1/h
+    for p in xrange(nr_particles):
+        print p
+
+        # TODO: fix at borders
+        i_p, j_p = x_p[p]/h, y_p[p]/h
+        i_c, j_c = ceil(i_p), ceil(j_p)
+        di, dj = i_c - i_p, j_c - j_p
+        i_int, j_int = mgrid[di-3:di+3, dj-3:dj+3]
+        weights = W(i_int, j_int)
+        w_m[i_c-3:i_c+3, j_c-3:j_c+3] += w_p[p] * weights
+    return w_m
+
 
 
 def diffusion(w_m, h):
