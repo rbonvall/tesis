@@ -131,7 +131,7 @@ def SLOW_remesh(w_p, x_p, y_p, x_m, y_m, h):
 
     
 def remesh(w_p, x_p, y_p, x_m, y_m, h):
-    #mesh_width, mesh_height = x_m.shape
+    M, N = x_m.shape
     nr_particles = w_p.size
 
     w_m = zeros_like(x_m)
@@ -139,13 +139,15 @@ def remesh(w_p, x_p, y_p, x_m, y_m, h):
     for p in xrange(nr_particles):
         print p
 
-        # TODO: fix at borders
+        # TODO: dub magic constants in terms of interpolation kernel's support
         i_p, j_p = x_p[p]/h, y_p[p]/h
         i_c, j_c = ceil(i_p), ceil(j_p)
         di, dj = i_c - i_p, j_c - j_p
         i_int, j_int = mgrid[di-3:di+3, dj-3:dj+3]
-        weights = W(i_int, j_int)
-        w_m[i_c-3:i_c+3, j_c-3:j_c+3] += w_p[p] * weights
+        weights = W(i_int, j_int)[max(0, 3 - i_c):6 - max(0, i_c + 3 - M),
+                                  max(0, 3 - j_c):6 - max(0, j_c + 3 - N)]
+        w_m[max(0, i_c - 3):min(i_c + 3, M),
+            max(0, j_c - 3):min(j_c + 3, N)] += w_p[p] * weights
     return w_m
 
 
