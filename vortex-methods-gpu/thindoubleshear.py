@@ -14,6 +14,7 @@ dt = 2e-2
 t_end = 10e-2
 M = 64
 h = 1/M
+viscosity = 1e-4
 
 x_dom = linspace(0.0, 1.0, M)
 y_dom = linspace(0.0, 1.0, M)
@@ -25,7 +26,7 @@ w_m = vorticity(u_m, v_m)
 for t in arange(0.0, t_end, dt):
     # integrate vorticity
     print "DIFFUSION"
-    w_m += diffusion(w_m, h)
+    w_m += viscosity * diffusion(w_m, h)
     print "RESHAPE"
     w_p = w_m.reshape(w_m.size)
 
