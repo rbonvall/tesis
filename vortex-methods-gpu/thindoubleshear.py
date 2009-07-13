@@ -26,7 +26,7 @@ w_m = vorticity(u_m, v_m)
 for t in arange(0.0, t_end, dt):
     # integrate vorticity
     print "DIFFUSION"
-    w_m += viscosity * diffusion(w_m, h)
+    w_m += dt * viscosity * diffusion(w_m, h)
     print "RESHAPE"
     w_p = w_m.reshape(w_m.size)
 
