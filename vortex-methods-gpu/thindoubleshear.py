@@ -42,7 +42,7 @@ for t in arange(0.0, t_end, dt):
 
     # remesh vorticity
     print "REMESH"
-    w_mesh = remesh(w_p, x_p, y_p, x_m, y_m, h)
+    w_m = remesh(w_p, x_p, y_p, x_m, y_m, h)
 
     print t,
 
