@@ -15,8 +15,8 @@ t_end = 10e-2
 M = 64
 h = 1/M
 
-x_dom = linspace(0.0, 1.0, M + 1)
-y_dom = linspace(0.0, 1.0, M + 1)
+x_dom = linspace(0.0, 1.0, M)
+y_dom = linspace(0.0, 1.0, M)
 x_m, y_m = meshgrid(x_dom, y_dom)
 
 u_m, v_m = u0(x_m, y_m), v0(x_m, y_m)
