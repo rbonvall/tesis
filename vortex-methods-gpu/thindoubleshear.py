@@ -2,6 +2,7 @@
 
 from __future__ import division
 from vm import *
+from pylab import *
 
 def u0(x, y, rho=80, delta=0.05):
     return tanh(rho * minimum(y - 0.25, 0.75 - y))
