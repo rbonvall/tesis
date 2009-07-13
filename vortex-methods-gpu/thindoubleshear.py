@@ -44,17 +44,4 @@ for t in arange(0.0, t_end, dt):
     print "REMESH"
     w_m = remesh(w_p, x_p, y_p, x_m, y_m, h)
 
-    print t,
-
-    
-
-
-contourf(x_m, y_m, rot)
-quiver(x_m, y_m, u0, v0)
-
-show()
-
-
-        
-
 
