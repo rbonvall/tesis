@@ -34,7 +34,7 @@ def vorticity(u, v):
     return vx - uy
 
 def poisson_source(w_m):
-    w_x, w_y = gradient(w_m)
+    w_y, w_x = gradient(w_m)
     return -w_y, w_x  # = -curl(w)
 
 def poisson_solve(f, g, h):
