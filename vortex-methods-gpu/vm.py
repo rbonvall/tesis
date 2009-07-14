@@ -29,9 +29,9 @@ def W(x, y):
     return m6(x) * m6(y)
 
 def vorticity(u, v):
-    ux, uy = gradient(u)
-    vx, vy = gradient(v)
-    return uy - vx
+    uy, ux = gradient(u)
+    vy, vx = gradient(v)
+    return vx - uy
 
 def poisson_source(w_m):
     w_x, w_y = gradient(w_m)
