@@ -23,18 +23,62 @@ x_m, y_m = meshgrid(x_dom, y_dom)
 u_m, v_m = u0(x_m, y_m), v0(x_m, y_m)
 w_m = vorticity(u_m, v_m)
 
+figure(1)
+s = (slice(None, None, M//32),) * 2
 for t in arange(0.0, t_end, dt):
+
+    subplot(341)
+    contourf(x_m, y_m, w_m)
+    title('Initial vorticity')
+
     # integrate vorticity
     print "DIFFUSION"
     w_m += dt * viscosity * diffusion(w_m, h)
     print "RESHAPE"
     w_p = w_m.reshape(w_m.size)
 
+    subplot(345)
+    contourf(x_m, y_m, w_m)
+    title('Vorticity after diffusion')
+
+    subplot(342)
+    contourf(x_m, y_m, u_m)
+    title('Initial u')
+
+    subplot(346)
+    contourf(x_m, y_m, v_m)
+    title('Initial v')
+
+    subplot(3,4,10)
+    quiver(x_m[s], y_m[s], u_m[s], v_m[s])
+    title('Initial (u, v)')
+
     # integrate velocity
     print "POISSON SOURCE"
     f, g = poisson_source(w_m)
+
+    subplot(343)
+    contourf(x_m, y_m, f)
+    title('Poisson source f')
+
+    subplot(347)
+    contourf(x_m, y_m, g)
+    title('Poisson source g')
+
     print "POISSON SOLVE"
-    u, v = poisson_solve(f, g, h)
+    u_m, v_m = poisson_solve(f, g, h)
+
+    subplot(344)
+    contourf(x_m, y_m, u_m)
+    title('Solved u')
+
+    subplot(348)
+    contourf(x_m, y_m, v_m)
+    title('Solved v')
+
+    subplot(3,4,12)
+    quiver(x_m[s], y_m[s], u_m[s], v_m[s])
+    title('Solved (u, v)')
 
     # final particles' positions
     print "INTEGRATE"
@@ -42,7 +86,13 @@ for t in arange(0.0, t_end, dt):
     y_p = (y_m + v_m * dt).reshape(y_m.size)
 
     # remesh vorticity
-    print "REMESH"
-    w_m = remesh(w_p, x_p, y_p, x_m, y_m, h)
+    #print "REMESH"
+    #w_m = remesh(w_p, x_p, y_p, x_m, y_m, h)
 
+    subplot(349)
+    contourf(x_m, y_m, w_m)
+    title('Remeshed vorticity')
+
+    show()
+    break
 
