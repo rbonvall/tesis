@@ -51,17 +51,17 @@ def poisson_solve(f, g, h):
     # boundaries
     # (assumption: periodic boundary conditions)
     # TODO: handle other kinds of BCs
-    top_boundary    = f[ 0, :]
-    bottom_boundary = f[-1, :]
-    left_boundary   = f[:,  0]
-    right_boundary  = f[:, -1]
+    top_boundary    = f[:,  0]
+    bottom_boundary = f[:, -1]
+    left_boundary   = f[-1, :]
+    right_boundary  = f[ 0, :]
 
     # build right-hand side vector of the FDM system
-    b = f.reshape(f.size) * h**2
-    b[       :M] += left_boundary
-    b[(N-1)*M: ] += right_boundary
-    b[   ::M] += top_boundary
-    b[M-1::M] += bottom_boundary
+    b = f.reshape(f.size).copy() * h**2
+    #b[       :M] -= bottom_boundary
+    #b[(N-1)*M: ] -= top_boundary
+    #b[   ::M] -= left_boundary
+    #b[M-1::M] -= right_boundary
 
     # solve for each velocity component using conjugate gradient method
     u0 = b/4
@@ -69,23 +69,30 @@ def poisson_solve(f, g, h):
     if u_info != 0:
         raise RuntimeError("Poisson solver did not converge")
 
+    subplot(131)
+    plot(b)
+    subplot(132)
+    plot(u0)
+    subplot(133)
+    plot(u)
+
 
     # Solve second component of equation (lapl(v) = w_x)
 
     # boundaries
     # (assumption: periodic boundary conditions)
     # TODO: handle other kinds of BCs
-    top_boundary    = g[ 0, :]
-    bottom_boundary = g[-1, :]
-    left_boundary   = g[:,  0]
-    right_boundary  = g[:, -1]
+    top_boundary    = g[:,  0]
+    bottom_boundary = g[:, -1]
+    left_boundary   = g[-1, :]
+    right_boundary  = g[ 0, :]
 
     # build right-hand side vector of the FDM system
-    b = g.reshape(g.size) * h**2
-    b[       :M] += left_boundary
-    b[(N-1)*M: ] += right_boundary
-    b[   ::M] += top_boundary
-    b[M-1::M] += bottom_boundary
+    b = g.reshape(g.size).copy() * h**2
+    #b[       :M] -= bottom_boundary
+    #b[(N-1)*M: ] -= top_boundary
+    #b[   ::M] -= left_boundary
+    #b[M-1::M] -= right_boundary
 
     # solve for each velocity component using conjugate gradient method
     v0 = b/4
