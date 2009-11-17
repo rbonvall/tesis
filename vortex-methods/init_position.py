@@ -33,18 +33,19 @@ def main():
     cell_size = 0.25
 
     def new_subplot(n, x, y):
-        s = pylab.subplot(130 + n, autoscale_on=False, xlim=(x0, x1), ylim=(y0, y1))
+        s = pylab.subplot(130 + n, autoscale_on=False,
+                          xlim=(x0, x1), ylim=(y0, y1))
         #s.grid(True)
         pylab.scatter(x, y, s=1)
 
     x, y = lattice(x0, x1, y0, y1, cell_size)
-    new_plot(1, x, y)
+    new_subplot(1, x, y)
 
     x, y = triangular(x0, x1, y0, y1, cell_size)
-    new_plot(2, x, y)
+    new_subplot(2, x, y)
 
     x, y = quasirandom(x0, x1, y0, y1, cell_size)
-    new_plot(3, x, y)
+    new_subplot(3, x, y)
 
     pylab.show()
 
