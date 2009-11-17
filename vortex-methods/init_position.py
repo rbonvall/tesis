@@ -27,10 +27,18 @@ def quasirandom(x0, x1, y0, y1, cell_size):
 
 def main():
     import pylab
+    import optparse
+    parser = optparse.OptionParser()
+    parser.add_option('--x0', type=float, default=-1.0)
+    parser.add_option('--x1', type=float, default=+1.0)
+    parser.add_option('--y0', type=float, default=-1.0)
+    parser.add_option('--y1', type=float, default=+1.0)
+    parser.add_option('--cell-size', '-e', type=float, default=1e-1)
+    (options, args) = parser.parse_args()
 
-    x0, x1 = -1, 1
-    y0, y1 = -1, 1
-    cell_size = 0.25
+    x0, x1 = options.x0, options.x1
+    y0, y1 = options.y0, options.y1
+    cell_size = options.cell_size
 
     def new_subplot(n, x, y):
         s = pylab.subplot(130 + n, autoscale_on=False,
