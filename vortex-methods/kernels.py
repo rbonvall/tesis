@@ -96,10 +96,10 @@ def main():
         pylab.quiver(x_grid, y_grid, -kf * y_grid, kf * x_grid)
 
     fns = [
-        (tophat_cutoff, tophat_bs_kernel_factor),
+        (tophat_cutoff,   tophat_bs_kernel_factor),
         (gaussian_cutoff, gaussian_bs_kernel_factor),
-        (p2_e_cutoff, p2_e_bs_kernel_factor),
-        (p4_e_cutoff, p4_e_bs_kernel_factor),
+        (p2_e_cutoff,     p2_e_bs_kernel_factor),
+        (p4_e_cutoff,     p4_e_bs_kernel_factor),
     ]
 
     for n, (cutoff, bs_kernel) in enumerate(fns):
