@@ -91,16 +91,18 @@ def main():
         kf = f(r2_grid, e2)
         pylab.quiver(x_grid, y_grid, -kf * y_grid, kf * x_grid)
 
+    fns = [
+        (tophat_cutoff, tophat_bs_kernel_factor),
+        (gaussian_cutoff, gaussian_bs_kernel_factor),
+        (p2_e_cutoff, p2_e_bs_kernel_factor),
+        (p4_e_cutoff, p4_e_bs_kernel_factor),
+    ]
 
-    sp(1); cutoff_plot(tophat_cutoff)
-    sp(2); cutoff_plot(gaussian_cutoff)
-    sp(3); cutoff_plot(p2_e_cutoff)
-    sp(4); cutoff_plot(p4_e_cutoff)
-
-    sp(N + 1); bs_kernel_plot(tophat_bs_kernel_factor)
-    sp(N + 2); bs_kernel_plot(gaussian_bs_kernel_factor)
-    sp(N + 3); bs_kernel_plot(p2_e_bs_kernel_factor)
-    sp(N + 4); bs_kernel_plot(p4_e_bs_kernel_factor)
+    for n, (cutoff, bs_kernel) in enumerate(fns):
+        sp(n + 1);
+        cutoff_plot(cutoff)
+        sp(N + n + 1);
+        bs_kernel_plot(bs_kernel)
 
     pylab.show()
 
