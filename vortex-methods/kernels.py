@@ -3,6 +3,10 @@
 from __future__ import division
 from numpy import *
 
+def exact_bs_kernel_factor(r2):
+    return 1/(2 * pi * r2)
+
+
 # Radial-symmetric cutoffs as a function of
 # distance to origin and cutoff radius.
 
