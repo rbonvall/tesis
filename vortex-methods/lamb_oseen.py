@@ -46,7 +46,10 @@ def plot_lamb_oseen():
 
         pylab.subplot(plot_rows, plot_cols, iteration + 1 + plot_cols)
         u, v = lamb_oseen_velocity(x_vel, y_vel, t)
+        vel = hypot(u, v)
         pylab.quiver(x_vel, y_vel, u, v)
+        pylab.contour(x_vel, y_vel, vel)
+
 
         iteration += 1
         t += dt
