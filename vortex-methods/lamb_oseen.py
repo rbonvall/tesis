@@ -22,7 +22,7 @@ def plot_lamb_oseen():
     h = 1/N
     dom = linspace(-0.1, 0.1, N + 1)
     x, y = meshgrid(dom, dom)
-    x_vel, y_vel = x[::40, ::40], y[::40, ::40]
+    x_vel, y_vel = x[::16, ::16], y[::16, ::16]
 
     plot_rows, plot_cols = 2, 5
 
