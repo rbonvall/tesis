@@ -11,7 +11,7 @@ def lamb_oseen(x, y, t, gamma0=1e0, nu=5e-4):
 
 def lamb_oseen_velocity(x, y, t, gamma0=1e0, nu=5e-4):
     r_sq = x**2 + y**2
-    r = sqrt(x**2 + y**2)
+    r = hypot(x, y)
     c = gamma0/(2 * pi * r)
     kf = c * (1 - exp(-r_sq/(4 * nu * t)))
     return -y * kf, x * kf
