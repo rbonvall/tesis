@@ -6,7 +6,7 @@ import pylab
 
 import init_position
 import vm
-import lamb_oseen
+import problems.lamb_oseen
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
     x, y = init_position.quasirandom(x0, x1, y0, y1, cell_size=h)
 
     # initial vorticity and circulation
-    vort = lamb_oseen.lamb_oseen(x, y, t0, nu=nu)
+    vort = problems.lamb_oseen.lamb_oseen(x, y, t0, nu=nu)
     circ = h**2 * vort
 
     # particle colors
