@@ -9,7 +9,7 @@ def eval_velocity(x, y, circ, squared_blob_size=1.0, bs_kernel_factor=gaussian):
     u, v = zeros_like(x), zeros_like(y)
     for p, (x_p, y_p) in enumerate(zip(x, y)):
         r2 = (x - x_p)**2 + (y - y_p)**2
-        kf = bs_kernel_factor(r2, blob_size**2)
+        kf = bs_kernel_factor(r2, squared_blob_size)
         K1, K2 = -kf * y, kf * x
         K1[p], K2[p] = 0.0, 0.0
         u[p], v[p] = dot(circ, K1), dot(circ, K2)
