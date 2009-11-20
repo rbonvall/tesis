@@ -90,10 +90,12 @@ def main():
 
     def cutoff_plot(f):
         pylab.plot(r, f(r2, e2))
+        pylab.title(f.func_name)
 
     def bs_kernel_plot(f):
         kf = f(r2_grid, e2)
         pylab.quiver(x_grid, y_grid, -kf * y_grid, kf * x_grid)
+        pylab.title(f.func_name.replace('_factor', ''))
 
     fns = [
         (tophat_cutoff,   tophat_bs_kernel_factor),
