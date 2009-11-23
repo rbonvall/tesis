@@ -4,12 +4,12 @@ from __future__ import division
 from numpy import *
 import pylab
 
-def lamb_oseen(x, y, t, gamma0=1e0, nu=5e-4):
+def vorticity(x, y, t, gamma0=1e0, nu=5e-4):
     r_sq = x**2 + y**2
     den = (4 * nu * t)
     return (gamma0/(den * pi)) * exp(-r_sq/den)
 
-def lamb_oseen_velocity(x, y, t, gamma0=1e0, nu=5e-4):
+def velocity(x, y, t, gamma0=1e0, nu=5e-4):
     r_sq = x**2 + y**2
     r = hypot(x, y)
     c = gamma0/(2 * pi * r)
@@ -36,7 +36,7 @@ def plot_lamb_oseen():
     for iteration in range(plot_cols - 1):
 
         pylab.subplot(plot_rows, plot_cols, iteration + 1)
-        lamb_oseen_values = lamb_oseen(x, y, t)
+        lamb_oseen_values = vorticity(x, y, t)
         if iteration == 0:
             cs = pylab.contour(x, y, lamb_oseen_values)
             l = cs.levels
@@ -45,7 +45,7 @@ def plot_lamb_oseen():
         pylab.colorbar()
 
         pylab.subplot(plot_rows, plot_cols, iteration + 1 + plot_cols)
-        u, v = lamb_oseen_velocity(x_vel, y_vel, t)
+        u, v = velocity(x_vel, y_vel, t)
         vel = hypot(u, v)
         pylab.quiver(x_vel, y_vel, u, v)
         pylab.contour(x_vel, y_vel, vel)
@@ -55,7 +55,7 @@ def plot_lamb_oseen():
         t += dt
 
         pylab.subplot(plot_rows, plot_cols, plot_rows * plot_cols)
-        pylab.plot(dom, lamb_oseen(dom, 0, t))
+        pylab.plot(dom, vorticity(dom, 0, t))
         pylab.title('Vorticity decay')
 
     pylab.show()
