@@ -2,7 +2,6 @@
 
 from __future__ import division
 from numpy import *
-import pylab
 
 def vorticity(x, y, t, gamma0=1e0, nu=5e-4):
     r_sq = x**2 + y**2
@@ -18,6 +17,8 @@ def velocity(x, y, t, gamma0=1e0, nu=5e-4):
 
 
 def main():
+    import pylab
+
     N = 2**8
     h = 1/N
     dom = linspace(-0.1, 0.1, N + 1)
