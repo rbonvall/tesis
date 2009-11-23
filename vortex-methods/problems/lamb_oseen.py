@@ -17,7 +17,7 @@ def velocity(x, y, t, gamma0=1e0, nu=5e-4):
     return -y * kf, x * kf
 
 
-def plot_lamb_oseen():
+def main():
     N = 2**8
     h = 1/N
     dom = linspace(-0.1, 0.1, N + 1)
@@ -60,10 +60,6 @@ def plot_lamb_oseen():
 
     pylab.show()
 
-def main():
-    pass
-
 
 if __name__ == '__main__':
-    plot_lamb_oseen()
-    #main()
+    main()
