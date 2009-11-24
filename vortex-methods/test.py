@@ -28,7 +28,9 @@ def main():
 
     # particle colors
     from itertools import cycle, izip as zip
-    colors = 'red green blue magenta cyan yellow'.split()
+    colors = ('#FF0000 #00FF00 #0000FF #FFFF00 #FF00FF #00FFFF '
+              '#660000 #006600 #000066 #666600 #660066 #006666 '
+             ).split()
     colors = [c for (c, _) in zip(cycle(colors), x)]
 
     t = t0
