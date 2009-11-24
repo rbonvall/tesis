@@ -37,12 +37,12 @@ def main():
     for iteration in range(plot_cols - 1):
 
         pylab.subplot(plot_rows, plot_cols, iteration + 1)
-        lamb_oseen_values = vorticity(x, y, t)
+        w = vorticity(x, y, t)
         if iteration == 0:
-            cs = pylab.contour(x, y, lamb_oseen_values)
+            cs = pylab.contour(x, y, w)
             l = cs.levels
         else:
-            cs = pylab.contour(x, y, lamb_oseen_values, l)
+            cs = pylab.contour(x, y, w, l)
         pylab.colorbar()
 
         pylab.subplot(plot_rows, plot_cols, iteration + 1 + plot_cols)
