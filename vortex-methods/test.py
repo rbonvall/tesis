@@ -20,7 +20,7 @@ def main():
     plot_rows, plot_cols = 3, 3
     plot_every = 10
 
-    x, y = init_position.quasirandom(x0, x1, y0, y1, cell_size=h)
+    x, y = init_position.triangular(x0, x1, y0, y1, cell_size=h)
 
     # initial vorticity and circulation
     vort = problems.lamb_oseen.vorticity(x, y, t0, nu=nu)
