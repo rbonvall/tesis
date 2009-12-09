@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
-from numpy import *
+from numpy import pi, piecewise, exp
 
 def exact_bs_kernel_factor(r2):
     return 1/(2 * pi * r2)
@@ -64,6 +64,7 @@ def p4_e_bs_kernel_factor(r2, e2):
 
 
 def main():
+    import numpy
     import pylab
 
     e2 = 1.0
@@ -72,15 +73,15 @@ def main():
     M, N = 2, 4
 
     # parameters for cutoff plotting
-    r = linspace(0.0, 3.0, 100)
+    r = numpy.linspace(0.0, 3.0, 100)
     r2 = r**2
 
     # parameters for Biot-Savart kernel plotting
     X = 5.0
-    x_grid, y_grid = mgrid[-X:X:0.5,
-                           -X:X:0.5]
+    x_grid, y_grid = numpy.mgrid[-X:X:0.5,
+                                 -X:X:0.5]
     r2_grid = x_grid**2 + y_grid**2
-    
+
 
     def sp(n):
         pylab.subplot(M, N, n)
