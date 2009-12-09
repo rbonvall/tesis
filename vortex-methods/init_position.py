@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 
 from __future__ import division
-from numpy import *
+import numpy
 import numpy.random
 
 def lattice(x0, x1, y0, y1, cell_size):
-    x, y = mgrid[x0 + cell_size/2 : x1 : cell_size,
-                 y0 + cell_size/2 : y1 : cell_size]
+    x, y = numpy.mgrid[x0 + cell_size/2 : x1 : cell_size,
+                       y0 + cell_size/2 : y1 : cell_size]
     return x.flatten(), y.flatten()
 
 def triangular(x0, x1, y0, y1, cell_size):
-    x_even, y_even = mgrid[x0 + cell_size/2 : x1 : cell_size,
-                           y0 + cell_size/2 : y1 : 2 * cell_size]
-    x_odd, y_odd   = mgrid[x0 + cell_size     : x1 : cell_size,
-                           y0 + 3*cell_size/2 : y1 : 2 * cell_size]
-    x = hstack([x_even.flatten(), x_odd.flatten()])
-    y = hstack([y_even.flatten(), y_odd.flatten()])
+    x_even, y_even = numpy.mgrid[x0 + cell_size/2 : x1 : cell_size,
+                                 y0 + cell_size/2 : y1 : 2 * cell_size]
+    x_odd, y_odd   = numpy.mgrid[x0 + cell_size     : x1 : cell_size,
+                                 y0 + 3*cell_size/2 : y1 : 2 * cell_size]
+    x = numpy.hstack([x_even.flatten(), x_odd.flatten()])
+    y = numpy.hstack([y_even.flatten(), y_odd.flatten()])
     return x, y
 
 def quasirandom(x0, x1, y0, y1, cell_size):
