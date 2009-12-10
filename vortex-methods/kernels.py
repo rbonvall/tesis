@@ -73,7 +73,7 @@ def main():
     M, N = 2, 4
 
     # parameters for cutoff plotting
-    r = numpy.linspace(0.0, 3.0, 100)
+    r = numpy.linspace(0.0, 5.0, 100)
     r2 = r**2
 
     # parameters for Biot-Savart kernel plotting
