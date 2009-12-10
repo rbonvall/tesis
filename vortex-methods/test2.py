@@ -9,34 +9,77 @@ import kernels
 import problems.lamb_oseen
 
 import functools
+import sys
 
+def p(s):
+    print s
+    sys.stdout.flush()
 
 def main():
     import pylab
 
     x0, x1 = -0.5, 0.5
     y0, y1 = -0.5, 0.5
-    h = .0625
-    nu = 1e3
+    #h = .0625
+    h = .125
+    nu = 5e-4
     dt = 0.01
     t0 = 0.01
 
-    plot_rows, plot_cols = 3, 3
-    plot_every = 10
-
-    x, y = init_position.triangular(x0, x1, y0, y1, cell_size=h)
+    x, y = init_position.lattice(x0, x1, y0, y1, cell_size=h)
 
     # initial vorticity and circulation
     vort = problems.lamb_oseen.vorticity(x, y, t0, nu=nu)
-    circ = h**2 * vort
+    #circ = h**2 * vort
+    circ = vort.size * vort/sum(vort)
+    p("Total circulation: %f" % sum(circ))
 
-    blob_kernel = functools.partial(kernels.gaussian_cutoff, e2=0.1)
+    h_mesh = h
+    M = int(ceil((x1 - x0)/h_mesh)) + 1
+    N = int(ceil((y1 - y0)/h_mesh)) + 1
+    blob_kernel = functools.partial(kernels.gaussian_cutoff, e2=10*h**2)
+    i_mesh, j_mesh = mgrid[x0: x0 + M * h_mesh: h_mesh,
+                           y0: y0 + N * h_mesh: h_mesh]
     w_mesh = vm.remesh_vorticity(x, y, circ, blob_kernel,
-                                 x0=-1.0, y0=-1.0, h=0.1, M=20, N=20)
+                                 x0, y0, h_mesh, M, N)
 
-    pylab.contour(w_mesh)
+    plot_every = 10000
+    plot_rows, plot_cols = 2, 4
 
+    t = t0
+    iteration = 0
+    plot_count = 0
+    while True:
+        plot_now = (iteration % plot_every == 0)
 
+        u, v = vm.eval_velocity(x, y, circ, squared_blob_size=h**2)
+
+        if plot_now:
+            plot_count += 1
+            pylab.subplot(plot_rows, plot_cols, plot_count)
+            p("Starting plot %d" % plot_count)
+
+            p("Remeshing vorticity at t = %f" % t)
+            w_mesh = vm.remesh_vorticity(x, y, circ, blob_kernel,
+                                         x0, y0, h_mesh, M, N)
+
+            pylab.contour(i_mesh, j_mesh, w_mesh, 10)
+            pylab.scatter(x, y, s=3)
+            pylab.quiver(x, y, u, v)#, color='#444444', headwidth=2)
+
+        x += u * dt
+        y += v * dt
+
+        iteration += 1
+        t += dt
+
+        #if plot_count == 2:
+        if plot_count == plot_cols * plot_rows:
+        #if plot_count == plot_cols:
+            break
+
+    p(v)
+    pylab.show()
 
 
 if __name__ == '__main__':
