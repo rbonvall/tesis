@@ -8,9 +8,10 @@ from kernels import gaussian_bs_kernel_factor as gaussian
 def eval_velocity(x, y, circ, squared_blob_size=1.0, bs_kernel_factor=gaussian):
     u, v = zeros_like(x), zeros_like(y)
     for p, (x_p, y_p) in enumerate(zip(x, y)):
-        r2 = (x - x_p)**2 + (y - y_p)**2
+        dx, dy = x - x_p, y - y_p
+        r2 = dx**2 + dy**2
         kf = bs_kernel_factor(r2, squared_blob_size)
-        K1, K2 = -kf * y, kf * x
+        K1, K2 = -kf * dy, kf * dx
         K1[p], K2[p] = 0.0, 0.0
         u[p], v[p] = dot(circ, K1), dot(circ, K2)
     return u, v
