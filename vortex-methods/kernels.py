@@ -34,12 +34,12 @@ def p1_bs_kernel_factor(r2, e2):
 
 
 def gaussian_cutoff(r2, e2):
-    c = 1/(2 * pi * e2)
-    return c * exp(-r2/(2 * e2))
+    c = 1/(pi * e2)
+    return c * exp(-r2/e2)
 
 def gaussian_bs_kernel_factor(r2, e2):
     c = 1/(2 * pi * r2)
-    return c * (1 - exp(-r2/(2 * e2)))
+    return c * (1 - exp(-r2/e2))
 
 
 def p2_e_cutoff(r2, e2):
