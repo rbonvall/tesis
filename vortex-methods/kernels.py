@@ -95,6 +95,7 @@ def main():
 
     def bs_kernel_plot(f):
         kf = f(r2_grid, e2)
+        kf[numpy.where(numpy.isnan(kf))] = 0.0
         pylab.quiver(x_grid, y_grid, -kf * y_grid, kf * x_grid)
         pylab.title(f.func_name.replace('_factor', ''))
 
