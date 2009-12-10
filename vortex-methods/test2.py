@@ -20,30 +20,30 @@ def main():
 
     x0, x1 = -0.5, 0.5
     y0, y1 = -0.5, 0.5
-    #h = .0625
-    h = .125
+    h = .0625
+    #h = .125
     nu = 5e-4
     dt = 0.01
     t0 = 0.01
 
-    x, y = init_position.lattice(x0, x1, y0, y1, cell_size=h)
+    x, y = init_position.quasirandom(x0, x1, y0, y1, cell_size=h)
 
     # initial vorticity and circulation
     vort = problems.lamb_oseen.vorticity(x, y, t0, nu=nu)
-    #circ = h**2 * vort
-    circ = vort.size * vort/sum(vort)
+    circ = h**2 * vort
+    circ = vort/sum(vort)
     p("Total circulation: %f" % sum(circ))
 
     h_mesh = h
     M = int(ceil((x1 - x0)/h_mesh)) + 1
     N = int(ceil((y1 - y0)/h_mesh)) + 1
-    blob_kernel = functools.partial(kernels.gaussian_cutoff, e2=10*h**2)
+    blob_kernel = functools.partial(kernels.gaussian_cutoff, e2=h**2)
     i_mesh, j_mesh = mgrid[x0: x0 + M * h_mesh: h_mesh,
                            y0: y0 + N * h_mesh: h_mesh]
     w_mesh = vm.remesh_vorticity(x, y, circ, blob_kernel,
                                  x0, y0, h_mesh, M, N)
 
-    plot_every = 10000
+    plot_every = 10
     plot_rows, plot_cols = 2, 4
 
     t = t0
