@@ -13,8 +13,8 @@ def main():
     x0, x1 = -0.5, 0.5
     y0, y1 = -0.5, 0.5
     h = .125
-    nu = 1.0
-    dt = 0.1
+    nu = 1e3
+    dt = 0.01
     t0 = 0.01
 
     plot_rows, plot_cols = 3, 3
