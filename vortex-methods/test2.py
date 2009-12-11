@@ -43,7 +43,7 @@ def main():
     w_mesh = vm.remesh_vorticity(x, y, circ, blob_kernel,
                                  x0, y0, h_mesh, M, N)
 
-    plot_every = 10
+    plot_every = 100
     plot_rows, plot_cols = 2, 4
 
     t = t0
@@ -63,7 +63,7 @@ def main():
             w_mesh = vm.remesh_vorticity(x, y, circ, blob_kernel,
                                          x0, y0, h_mesh, M, N)
 
-            pylab.contour(i_mesh, j_mesh, w_mesh, 10)
+            pylab.contour(i_mesh, j_mesh, w_mesh, 20)
             pylab.scatter(x, y, s=3)
             pylab.quiver(x, y, u, v)#, color='#444444', headwidth=2)
 
@@ -78,7 +78,6 @@ def main():
         #if plot_count == plot_cols:
             break
 
-    p(v)
     pylab.show()
 
 
