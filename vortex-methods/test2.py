@@ -52,7 +52,29 @@ def main():
     while True:
         plot_now = (iteration % plot_every == 0)
 
-        u, v = vm.eval_velocity(x, y, circ, squared_blob_size=h**2)
+        eval_velocity = functools.partial(vm.eval_velocity, circ=circ, squared_blob_size=h**2)
+
+        # begin Runge-Kutta integration
+        u, v = zeros_like(x), zeros_like(y)
+
+        kx, ky = eval_velocity(x, y) # k1
+        u += kx/6
+        v += ky/6
+
+        dx, dy = kx * (dt/2), ky * (dt/2)
+        kx, ky = eval_velocity(x + dx, y + dy) # k2
+        u += kx/3
+        v += ky/3
+
+        dx, dy = kx * (dt/2), ky * (dt/2)
+        kx, ky = eval_velocity(x + dx, y + dy) # k3
+        u += kx/3
+        v += ky/3
+
+        dx, dy = kx * dt, ky * dt
+        kx, ky = eval_velocity(x + dx, y + dy) # k4
+        u += kx/6
+        v += ky/6
 
         if plot_now:
             plot_count += 1
