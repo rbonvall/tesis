@@ -22,16 +22,23 @@ def main():
 
     parser = optparse.OptionParser()
     op = parser.add_option
-    op('-x', type=float, nargs=2, default=(-0.5, 0.5), metavar='X0 X1')
-    op('-y', type=float, nargs=2, default=(-0.5, 0.5), metavar='Y0 Y1')
+    op('-x', type=float, nargs=2, default=(-0.5, 0.5), metavar='X₀ X₁')
+    op('-y', type=float, nargs=2, default=(-0.5, 0.5), metavar='Y₀ Y₁')
     op('--cell-size', type=float, default=.0625, metavar='H')
     op('--viscosity', '-n', type=float, default=5e-4, metavar=u'ν')
-    op('--t0', type=float, default=0.01)
-    op('--dt', type=float, default=0.01, metavar=u'Δt')
+    op('--t0', type=float, default=0.01, metavar=u'T₀')
+    op('--dt', type=float, default=0.01, metavar=u'ΔT')
     op('--lattice',    action='store_const', dest='init', const=init_position.lattice,
-                                                          default=init_position.lattice)
-    op('--triangular', action='store_const', dest='init', const=init_position.triangular)
-    op('--random',     action='store_const', dest='init', const=init_position.quasirandom)
+                       help='Initialize particles in a lattice distribution',
+                       default=init_position.lattice)
+    op('--triangular', action='store_const', dest='init', const=init_position.triangular,
+                       help='Initialize particles in a triangular distribution')
+    op('--random',     action='store_const', dest='init', const=init_position.quasirandom,
+                       help='Initialize particles in a quasirandom distribution')
+    op('--circulation', type=float, default=1.0, metavar=u'Γ₀',
+                       help='Lamb-Oseen total circulation')
+    op('--plot-every', type=int, default=100, metavar='N',
+                       help='Plot particles every N iteration')
     (options, args) = parser.parse_args()
 
     x0, x1 = options.x
@@ -41,14 +48,15 @@ def main():
     t0 = options.t0
     dt = options.dt
     initialize = options.init
+    plot_every = options.plot_every
+    total_circulation = options.circulation
 
     x, y = initialize(x0, x1, y0, y1, cell_size=h)
 
     # initial vorticity and circulation
     vort = problems.lamb_oseen.vorticity(x, y, t0, nu=nu)
     circ = h**2 * vort
-    circ = vort/sum(vort)
-    p("Total circulation: %f" % sum(circ))
+    circ = vort/sum(vort) * total_circulation
 
     h_mesh = h
     M = int(ceil((x1 - x0)/h_mesh)) + 1
@@ -59,7 +67,6 @@ def main():
     w_mesh = vm.remesh_vorticity(x, y, circ, blob_kernel,
                                  x0, y0, h_mesh, M, N)
 
-    plot_every = 100
     plot_rows, plot_cols = 2, 4
 
     t = t0
