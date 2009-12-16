@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# vim: set fileencoding=utf-8:
 
 from __future__ import division
 from numpy import *
@@ -17,16 +18,31 @@ def p(s):
 
 def main():
     import pylab
+    import optparse
 
-    x0, x1 = -0.5, 0.5
-    y0, y1 = -0.5, 0.5
-    h = .0625
-    #h = .125
-    nu = 5e-4
-    dt = 0.01
-    t0 = 0.01
+    parser = optparse.OptionParser()
+    op = parser.add_option
+    op('-x', type=float, nargs=2, default=(-0.5, 0.5), metavar='X0 X1')
+    op('-y', type=float, nargs=2, default=(-0.5, 0.5), metavar='Y0 Y1')
+    op('--cell-size', type=float, default=.0625, metavar='H')
+    op('--viscosity', '-n', type=float, default=5e-4, metavar=u'ν')
+    op('--t0', type=float, default=0.01)
+    op('--dt', type=float, default=0.01, metavar=u'Δt')
+    op('--lattice',    action='store_const', dest='init', const=init_position.lattice,
+                                                          default=init_position.lattice)
+    op('--triangular', action='store_const', dest='init', const=init_position.triangular)
+    op('--random',     action='store_const', dest='init', const=init_position.quasirandom)
+    (options, args) = parser.parse_args()
 
-    x, y = init_position.quasirandom(x0, x1, y0, y1, cell_size=h)
+    x0, x1 = options.x
+    y0, y1 = options.y
+    h = options.cell_size
+    nu = options.viscosity
+    t0 = options.t0
+    dt = options.dt
+    initialize = options.init
+
+    x, y = initialize(x0, x1, y0, y1, cell_size=h)
 
     # initial vorticity and circulation
     vort = problems.lamb_oseen.vorticity(x, y, t0, nu=nu)
