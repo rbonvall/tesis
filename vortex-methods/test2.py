@@ -16,6 +16,34 @@ def p(s):
     print s
     sys.stdout.flush()
 
+def runge_kutta_velocity_integration(x, y, circ, dt, squared_blob_size):
+    u, v = zeros_like(x), zeros_like(y)
+
+    eval_velocity = functools.partial(vm.eval_velocity, circ=circ,
+                                      squared_blob_size=squared_blob_size)
+
+    kx, ky = eval_velocity(x, y) # k1
+    u += kx/6
+    v += ky/6
+
+    dx, dy = kx * (dt/2), ky * (dt/2)
+    kx, ky = eval_velocity(x + dx, y + dy) # k2
+    u += kx/3
+    v += ky/3
+
+    dx, dy = kx * (dt/2), ky * (dt/2)
+    kx, ky = eval_velocity(x + dx, y + dy) # k3
+    u += kx/3
+    v += ky/3
+
+    dx, dy = kx * dt, ky * dt
+    kx, ky = eval_velocity(x + dx, y + dy) # k4
+    u += kx/6
+    v += ky/6
+
+    return u, v
+
+
 def main():
     import pylab
     import optparse
@@ -75,29 +103,7 @@ def main():
     while True:
         plot_now = (iteration % plot_every == 0)
 
-        eval_velocity = functools.partial(vm.eval_velocity, circ=circ, squared_blob_size=h**2)
-
-        # begin Runge-Kutta integration
-        u, v = zeros_like(x), zeros_like(y)
-
-        kx, ky = eval_velocity(x, y) # k1
-        u += kx/6
-        v += ky/6
-
-        dx, dy = kx * (dt/2), ky * (dt/2)
-        kx, ky = eval_velocity(x + dx, y + dy) # k2
-        u += kx/3
-        v += ky/3
-
-        dx, dy = kx * (dt/2), ky * (dt/2)
-        kx, ky = eval_velocity(x + dx, y + dy) # k3
-        u += kx/3
-        v += ky/3
-
-        dx, dy = kx * dt, ky * dt
-        kx, ky = eval_velocity(x + dx, y + dy) # k4
-        u += kx/6
-        v += ky/6
+        u, v = runge_kutta_velocity_integration(x, y, circ, dt, h**2)
 
         if plot_now:
             plot_count += 1
