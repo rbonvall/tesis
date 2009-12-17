@@ -4,6 +4,13 @@ from numpy import zeros_like
 import functools
 import vm
 
+
+def euler(x, y, circ, dt, squared_blob_size):
+    u, v = vm.eval_velocity(x, y, circ=circ,
+                            squared_blob_size=squared_blob_size)
+    return u, v
+
+
 def runge_kutta(x, y, circ, dt, squared_blob_size):
     u, v = zeros_like(x), zeros_like(y)
 

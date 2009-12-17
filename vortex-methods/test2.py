@@ -42,6 +42,10 @@ def main():
                        help='Lamb-Oseen total circulation')
     op('--plot-every', type=int, default=100, metavar='N',
                        help='Plot particles every N iteration')
+    op('--euler', action='store_const', dest='timestepping', const=vel_integration.euler,
+                        help='Use Euler time-stepping', default=vel_integration.euler)
+    op('--runge-kutta', action='store_const', dest='timestepping', const=vel_integration.runge_kutta,
+                        help='Use 4th order Runge-Kutta time-stepping')
     (options, args) = parser.parse_args()
 
     x0, x1 = options.x
@@ -53,6 +57,7 @@ def main():
     initialize = options.init
     plot_every = options.plot_every
     total_circulation = options.circulation
+    velocity_integration = options.timestepping
 
     x, y = initialize(x0, x1, y0, y1, cell_size=h)
 
@@ -78,7 +83,7 @@ def main():
     while True:
         plot_now = (iteration % plot_every == 0)
 
-        u, v = vel_integration.runge_kutta(x, y, circ, dt, h**2)
+        u, v = velocity_integration(x, y, circ, dt, h**2)
 
         if plot_now:
             plot_count += 1
