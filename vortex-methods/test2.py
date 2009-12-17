@@ -7,6 +7,7 @@ from numpy import *
 import init_position
 import vm
 import kernels
+import vel_integration
 import problems.lamb_oseen
 
 import functools
@@ -16,32 +17,6 @@ def p(s):
     print s
     sys.stdout.flush()
 
-def runge_kutta_velocity_integration(x, y, circ, dt, squared_blob_size):
-    u, v = zeros_like(x), zeros_like(y)
-
-    eval_velocity = functools.partial(vm.eval_velocity, circ=circ,
-                                      squared_blob_size=squared_blob_size)
-
-    kx, ky = eval_velocity(x, y) # k1
-    u += kx/6
-    v += ky/6
-
-    dx, dy = kx * (dt/2), ky * (dt/2)
-    kx, ky = eval_velocity(x + dx, y + dy) # k2
-    u += kx/3
-    v += ky/3
-
-    dx, dy = kx * (dt/2), ky * (dt/2)
-    kx, ky = eval_velocity(x + dx, y + dy) # k3
-    u += kx/3
-    v += ky/3
-
-    dx, dy = kx * dt, ky * dt
-    kx, ky = eval_velocity(x + dx, y + dy) # k4
-    u += kx/6
-    v += ky/6
-
-    return u, v
 
 
 def main():
@@ -103,7 +78,7 @@ def main():
     while True:
         plot_now = (iteration % plot_every == 0)
 
-        u, v = runge_kutta_velocity_integration(x, y, circ, dt, h**2)
+        u, v = vel_integration.runge_kutta(x, y, circ, dt, h**2)
 
         if plot_now:
             plot_count += 1
