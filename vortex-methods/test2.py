@@ -17,10 +17,7 @@ def p(s):
     print s
     sys.stdout.flush()
 
-
-
-def main():
-    import pylab
+def parse_args():
     import optparse
 
     parser = optparse.OptionParser()
@@ -46,7 +43,13 @@ def main():
                         help='Use Euler time-stepping', default=vel_integration.euler)
     op('--runge-kutta', action='store_const', dest='timestepping', const=vel_integration.runge_kutta,
                         help='Use 4th order Runge-Kutta time-stepping')
-    (options, args) = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    import pylab
+
+    options, args = parse_args()
 
     x0, x1 = options.x
     y0, y1 = options.y
