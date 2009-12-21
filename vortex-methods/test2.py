@@ -64,8 +64,12 @@ def main():
 
     x, y = initialize(x0, x1, y0, y1, cell_size=h)
 
+    # specialize vorticity functions
+    vort_t = functools.partial(problems.lamb_oseen.vorticity, nu=nu)
+    vort_0 = functools.partial(vort_t, t=t0)
+
     # initial vorticity and circulation
-    vort = problems.lamb_oseen.vorticity(x, y, t0, nu=nu)
+    vort = vort_0(x, y)
     circ = h**2 * vort
     circ = vort/sum(vort) * total_circulation
 
