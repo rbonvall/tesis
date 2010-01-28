@@ -1,1 +1,9 @@
 *.pyc
+*.swp
+*.aux
+*.lof
+*.log
+*.lot
+*.out
+*.pdf
+*.toc
