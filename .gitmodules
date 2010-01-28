@@ -1,3 +1,3 @@
 [submodule "memoria/usmtesis"]
 	path = memoria/usmtesis
-	url = /home/rbonvall/codigo/usmtesis/
+	url = git://github.com/rbonvall/usmtesis.git
