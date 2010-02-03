@@ -1,4 +1,25 @@
 \chapter{Vortex Methods}
 \label{ch:vm}
 
-Vortex Methods rule.
+Vortex Methods are a class of methods used for direct numerical simulations of
+incompressible viscous flows at high Reynold numbers.  In this chapter, the 2-D
+Vortex Blob Method is introduced, along with its algorithmic characteristics.
+
+\section{Dynamics of vorticity}
+
+\section{The 2-D Vortex Blob Method}
+
+A two-dimensional incompressible unbounded flow
+
+
+\begin{equation}
+  \label{eq:vort-vel-ns}
+  \frac{\partial\omega}{\partial t} + \divergence(\vel\vort) = \lapl\vort
+\end{equation}
+
+\begin{align}
+  \vort(\,\cdot\,{}, 0) &= \vort_0, \\
+  \divergence\vel &= 0, \\
+  \curl\vel &= \vort, \\
+  \norm\vel &\to\vel_\infty
+\end{align}
