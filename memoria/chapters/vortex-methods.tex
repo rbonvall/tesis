@@ -1,9 +1,11 @@
 \chapter{Vortex Methods}
 \label{ch:vm}
 
-Vortex Methods are a class of methods used for direct numerical simulations of
-incompressible viscous flows at high Reynold numbers.  In this chapter, the 2-D
-Vortex Blob Method is introduced, along with its algorithmic characteristics.
+Vortex Methods are a class of methods
+used for direct numerical simulations
+of incompressible viscous flows at high Reynold numbers.
+In this chapter, the 2-D Vortex Blob Method is introduced,
+along with its algorithmic characteristics.
 
 \section{Dynamics of vorticity}
 
@@ -12,8 +14,10 @@ Vortex Blob Method is introduced, along with its algorithmic characteristics.
 A two-dimensional incompressible unbounded flow
 
 
+Vorticity-velocity formulation of the Navier-Stokes equations:
+
 \begin{equation}
-  \label{eq:vort-vel-ns}
+  \label{eq:vort-vel-navier-stokes}
   \frac{\partial\omega}{\partial t} + \divergence(\vel\vort) = \lapl\vort
 \end{equation}
 
@@ -23,3 +27,50 @@ A two-dimensional incompressible unbounded flow
   \curl\vel &= \vort, \\
   \norm\vel &\to\vel_\infty
 \end{align}
+
+Biot-Savart law
+
+\begin{equation}
+  \label{eq:biot-savart-law}
+  \vel = \vel_\infty + \K * \vort
+\end{equation}
+
+where \(\K = \nabla\times G\),
+\(G\) being the Green's function for the Laplacian.
+In \(\R^2\):
+
+\begin{align}
+  G(\x) &= -(2\pi)^{-1} \log\abs{\vec x} \\
+  \K(\x) &= (2\pi\abs{x}^2)^{-1} \bigl(-x_2, x_1\bigr) 
+\end{align}
+
+\begin{equation}
+  \label{eq:initial-vorticity-approximation}
+  \vort_0\approx\vort_0^h = \sum_p\circulation_p\delta(\x - \x_p)
+\end{equation}
+
+\begin{equation}
+  \label{eq:point-vortex-method-approximation}
+  \vort^h(\x, t) = \sum_p\circulation_p\delta\bigl(\x - \x_p^h(t)\bigr)
+\end{equation}
+
+
+\begin{align}
+  \label{eq:vortex-blob-ode}
+  \frac{d\x_p^h}{dt} &= \vel(\vec x_p^t, t) \\
+  \x_p^h(0) &= \x_p \\
+  \vel &= \K_\e * \vort
+\end{align}
+
+\begin{equation}
+  \zeta_\e(\x) = \e^{-2}\zeta(\x/\e)
+\end{equation}
+
+\begin{equation}
+  \K_\e = \K * \zeta_\e
+\end{equation}
+
+\begin{equation}
+  \vort_\e^h = \sum_p\zeta_\e(\x - \x_p^h)
+\end{equation}
+
