@@ -14,16 +14,17 @@ The vorticity field \(\mathbold\vort\)
 of a fluid flow with velocity field~\(\vel = (u, v, w)\)
 is defined as:%
 \begin{equation}
-  \mathbold\vort = \nabla\times\vel.
+  \label{eq:vorticity}
+  \mathbold\vort = \curl\vel.
 \end{equation}
 
 Incompressible fluids are those for which
 the volume of fluid elements remains constant in time.
-This condition is expressed mathematically as~\(\nabla\cdot\vel = 0\).
+This condition is described mathematically as~\(\nabla\cdot\vel = 0\).
 It follows from the definition of vorticity that also~\(\nabla\cdot\mathbold\vort = 0\).
 
 The vorticity is orthogonal to the velocity on every point of the fluid.
-It follows that in a two-dimensional flow,
+Therefore, in a two-dimensional flow,
 the only non-zero component of the vorticity is the \(z\) component. 
 It this case, it is customary to consider the vorticity as a scalar field
 \(\vort = v_x - u_y\)\footnotemark,
@@ -42,6 +43,8 @@ in a fixed location in space, and are respectively:
 \end{align}
 where \(\rho\) and \(p\) are the density and the pressure fields,
 and \(\mu\) is the dynamic viscosity of the fluid.
+These equations are also known respectively as
+the continuity equation and the Navier-Stokes equation.
 
 Vortex Methods, on the other hand, are based on the Lagrangian reference frame,
 which views the fluid as a collection of fluid elements
@@ -52,25 +55,81 @@ A full description of the flow is obtained by
 identifying the initial location of the fluid elements
 and the initial value of the dependent variable.
 
-Both reference frames are related by the material derivative operator \(D/Dt\),
+Both reference frames are conveniently related
+by the material derivative operator \(D/Dt\),
 defined as:
 \begin{equation}
-  \frac{D}{Dt} = \frac{\partial}{\partial t} + (\vel\cdot\nabla).
+  \frac{D}{Dt} = \frac{\partial}{\partial t} + (\vel\cdot\nabla),
 \end{equation}
+which accounts for the rate change of a quantity along the flow trajectories.
 
+The laws of conservation of mass and momentum in Lagrangian coordinates are:
+\begin{align}
+  \label{eq:lagrangian-mass-conservation}
+  \frac{D\rho}{Dt} &= -\rho\divergence(\vel), \\
+  \label{eq:lagrangian-momentum-conservation}
+  \rho\frac{D\vel}{Dt} &= -\nabla p + \mu\lapl\vel.
+\end{align}
+For an incompressible flow,
+equation~\ref{eq:lagrangian-mass-conservation} reduces to \(D\rho/Dt = 0\),
+thus density is constant for fluid elements along the flow.
 
+By taking the curl to equation~\ref{eq:lagrangian-momentum-conservation},
+the velocity-vorticity formulation of the Navier-Stokes equation is obtained:
+\begin{equation}
+  \label{eq:velocity-vorticity-navier-stokes}
+  \rho\frac{D\mathbold\vort}{Dt} = \rho\mathbold\vort\cdot\nabla\vel +
+                                   \mu\lapl\mathbold\vort.
+\end{equation}
+In two dimensions, the vorticity has no component along the velocity gradients,
+so the first term in the right-hand side,
+which is the rate of deforming vortex lines due to vortex stretching,
+vanishes.  In this case, the flow is completely determined by the equations:
+\begin{align}
+  \frac{D\vort}{Dt} &= \nu\lapl\vort, \\
+  \divergence\vel &= 0, \\
+  \curl\vel &= \vort\hat{\vec k}, \\
+  \vort(\,\cdot\,{}, 0) &= \vort_0;
+\end{align}
+where \(\nu = \mu/\rho\) is the kinematic viscosity of the fluid.
+In this formulation, the pressure \(p\) drops out of the equations,
+so it does not need to be solved for.
+
+The velocity field can be recovered from the vorticity by solving the Poisson's equation:
+\begin{equation}
+  \lapl\vel = -\curl\mathbold\vort
+\end{equation}
+with suitable boundary conditions.
+The Biot-Savart law gives the solution to this equation as an integral over \(\vort\)
+in terms of the Green's function \(\mathbf G\) for the Poisson's equation:
+\begin{equation}
+  \label{eq:integral-biot-savart-law}
+  \vel(\x, t) = \int\bigl(\curl\mathbf G\bigr)(\x - \x')\,\vort(\x', t)\,d\x'.
+\end{equation}
+By defining the Biot-Savart kernel~\(\K = \curl\mathbf G\),
+the Biot-Savart law can be succinctly stated as:
+\begin{equation}
+  \label{eq:biot-savart-law}
+  \vel = \K * \vort.
+\end{equation}
+In two dimensions, the kernel~\(\K\) is given by:
+\begin{equation}
+  \label{eq:2d-biot-savart-kernel}
+  \K(x, y) = -\frac{1}{2\pi\norm\x}\bigl(-y, x\bigr).
+\end{equation}
+The discussion so far assumes that the flow evolves in free space.
+For other boundary conditions, the Biot-Savart law must be modified
+to take into account the boundaries.
 
 \section{The 2-D Vortex Blob Method}
 \label{sec:vortex-blob-method}
-
-A two-dimensional incompressible unbounded flow
 
 
 Vorticity-velocity formulation of the Navier-Stokes equations:
 
 \begin{equation}
   \label{eq:vort-vel-navier-stokes}
-  \frac{\partial\omega}{\partial t} + \divergence(\vel\vort) = \lapl\vort
+  \frac{\partial\vort}{\partial t} + \divergence(\vel\vort) = \nu\lapl\vort
 \end{equation}
 
 \begin{align}
