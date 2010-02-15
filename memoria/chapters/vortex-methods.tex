@@ -132,7 +132,9 @@ When solved, they determine the evolution in time of vorticity-carrying particle
 
 The basic idea in Vortex Methods is
 to sample the computational domain into cells
-inside which an initial circulation \(\circulation_p\) is concentrated on a single point.
+inside which an initial circulation \(\circulation_p\) is concentrated on a single point,
+which is referred to as a particle.
+
 Kelvin's theorem asserts that circulation is conserved
 along material elements moving with an inviscid fluid,
 so it is natural that,
@@ -140,52 +142,87 @@ given a smooth approximation~\(\vel^h\) of \(\vel\),
 each cell's circulation remains unchanged when being convected
 along its trajectory~\(\x_p^h\) along~\(\vel^h\).
 
-The original formulation by Rosenhead (CITATION) was the Point Vortex Method,
+The original formulation by Rosenhead~\cite{rosenhead31} was the Point Vortex Method,
 in which the initial vorticity was approximated as:
 \begin{equation}
-  \label{eq:initial-vorticity-approximation}
+  \label{eq:point-vortex-method-initial-vorticity}
   \vort_0\approx\sum_p\circulation_p\delta(\x - \x_p).
 \end{equation}
 Thus, an approximation of the vorticity at time \(t\) is given by:
 \begin{equation}
-  \vort^h(\x, t)=\sum_p\circulation_p\delta\bigl(\x - \x^h_p(t)\bigr).
-\end{equation}
-
-
-
-
-
-
-
-\begin{equation}
   \label{eq:point-vortex-method-approximation}
-  \vort^h(\x, t) = \sum_p\circulation_p\delta\bigl(\x - \x_p^h(t)\bigr)
+  \vort^h(\x, t)=\sum_p\circulation_p\delta\bigl(\x - \x^h_p(t)\bigr),
 \end{equation}
+and the velocity~\(\vel^h\) is restored from~\(\vort^h\)
+by some approximation of the Biot-Savart law.
+Because of the singularity of the kernel~\(\K\),
+this can lead to arbitrarily large values of~\(\vel^h\)
+when particles approach each other.
 
-\begin{align}
-  \frac{d\x_p}{dt} &= \vel(\x_p, t) \\
-  \frac{d\vort}{dt} &= \nu\lapl\vort
-\end{align}
-
-
-
-
+The Vortex Blob Method, proposed by Chorin,
+overcomes this difficulty by introducing
+a mollification~\(\K_\e\) of the Biot-Savart kernel.
+First, a smooth cutoff function~\(\zeta\) is chosen
+such that~\(\int\zeta(\x)\,d\x = 1\),
+which is scaled with a parameter~\(\e\)
+to obtain the function~\(\zeta_\e\)
+that represents a mollified particle:
+\begin{equation}
+  \zeta_\e(\x) = \e^{-2}\zeta(\x/\e).
+\end{equation}
+The mollified kernel~\(\K_\e\) is then set as \(\K_\e = \K * \zeta_\e\),
+and then the method is formulated as the numerical integration
+of the system of ordinary differential equations:
 \begin{align}
   \label{eq:vortex-blob-ode}
-  \frac{d\x_p^h}{dt} &= \vel(\vec x_p^t, t) \\
-  \x_p^h(0) &= \x_p \\
-  \vel &= \K_\e * \vort
+  \frac{d\x_p^h}{dt}  &= \vel^h(\vec x_p^t, t) \\
+  \frac{d\vort^h}{dt} &= \nu\lapl\vort^h
 \end{align}
+with \(\vel^h = \K_\e * \vort^h\).
 
+The vorticity field~\(\vort_\e^h\) is approximated as the sum of the
+circulation contributions of all mollified particles:
 \begin{equation}
-  \zeta_\e(\x) = \e^{-2}\zeta(\x/\e)
+  \vort_\e^h = \sum_p\circulation_p\zeta_\e(\x - \x_p^h),
+\end{equation}
+which gives the velocity formula:
+\begin{equation}
+  \vel^h = \sum_p\circulation_p\K_\e(\x - \x_p^h).
 \end{equation}
 
-\begin{equation}
-  \K_\e = \K * \zeta_\e
-\end{equation}
+\section{Algorithmic overview}
+The implementation of a Vortex Blob Method requires several design decisions
+which condition its efficiency and stability,
+and its suitability for different kinds of flows.
 
-\begin{equation}
-  \vort_\e^h = \sum_p\zeta_\e(\x - \x_p^h)
-\end{equation}
+The basic stages of a Vortex Method are 
+
+\begin{figure}
+  \centering
+  \tikzstyle{vm-block}=[draw]
+  \tikzstyle{vm-block-o}=[draw,fill=blue!15]
+  \begin{tikzpicture}[node distance=5ex]
+    \node[vm-block]   (disc)                 {Discretization};
+    \node[vm-block]   (vel)  [below of=disc] {Velocity evaluation};
+    \node[vm-block]   (conv) [below of=vel]  {Convection};
+    \node[vm-block]   (diff) [below of=conv] {Diffusion};
+    \node[vm-block-o] (bc)   [below of=diff] {Satisfaction of BCs};
+    \node[vm-block-o] (spa)  [below of=bc]   {Spatial adaption};
+    \node[vm-block-o] (fs)   [right of=vel, node distance=15em] {Fast summation};
+    \node[vm-block-o] (mf)   [right of=bc,  node distance=15em] {Measurement of forces};
+    \draw[->] (disc) to (vel);
+    \draw[->] (vel)  to (conv);
+    \draw[->] (conv) to (diff);
+    \draw[->] (diff) to (bc);
+    \draw[->] (bc)   to (spa);
+    \draw[->] (fs)   to (vel);
+    \draw[->] (bc)   to (mf);
+    \draw[->] (spa.west) to [out=180,in=180] (vel.west);
+  \end{tikzpicture}
+  \label{fig:vm-blocks}
+  \caption{Basic building blocks of a viscous vortex method implementation,
+    as described in~\cite[\S1.2]{barba04}. Shaded blocks indicate components
+    that are not mandatory, but are generally present in modern applications
+    of vortex methods.}
+\end{figure}
 
