@@ -187,15 +187,14 @@ circulation contributions of all mollified particles:
 \end{equation}
 which gives the velocity formula:
 \begin{equation}
+  \label{eq:discrete-biot-savart-law}
   \vel^h = \sum_p\circulation_p\K_\e(\x - \x_p^h).
 \end{equation}
 
-\section{Algorithmic overview}
+\section{Algorithmic features of Vortex Methods}
 The implementation of a Vortex Blob Method requires several design decisions
 which condition its efficiency and stability,
 and its suitability for different kinds of flows.
-
-The basic stages of a Vortex Method are 
 
 \begin{figure}
   \centering
@@ -225,4 +224,65 @@ The basic stages of a Vortex Method are
     that are not mandatory, but are generally present in modern applications
     of vortex methods.}
 \end{figure}
+
+The basic stages of a Vortex Method are those shown in figure~\ref{fig:vm-blocks}.
+
+
+During the discretization stage,
+the position and circulation of the particles is set
+in order to represent accurately the initial vorticity field.
+This includes the choice of the cutoff function~\(\zeta\).
+
+Some classes of methods for particle initialization
+described in~\cite[\S2.4]{cottet00} are:
+\begin{enumerate}
+  \item splitting~\(\supp\vort_0\) in regular cells
+    and initializing a particle at the center of each cell;
+  \item splitting~\(\supp\vort_0\) in regular cells,
+    and for each of them initialize a particle in a random position inside it.
+  \item initializing particles randomly in~\(\supp\vort_0\);
+\end{enumerate}
+If the initial circulation~\(\circulation_p\) is unknown,
+it can be set to~\(\circulation_p = \vort_0(\x_p) v_p\),
+where \(v_p\) is the volume of the cell
+(or an average volume, in the case of random initialization).
+Each initialization scheme has different quadrature properties
+that determine its accuracy.
+
+Cutoff functions can be constructed in several different ways,
+some of which are described in~\cite[\S2.3]{cottet00}.
+A customary choice is a Gaussian cutoff:
+\begin{equation}
+  \zeta_{\sigma k}(\x) =
+    \frac{1}{k\pi\sigma^2}
+    \exp\left\{\frac{-\norm{\x}^2}{k\sigma^2}\right\},
+\end{equation}
+which yields an analytical expression for the velocity kernel:
+\begin{equation}
+  \K_{\sigma k}(\x) =
+    \frac{1}{k\pi\norm{\x}^2}
+    \left(
+      1 - \exp\left\{
+        \frac{-\norm{\x}^2}{k\sigma^2}
+      \right\}
+    \right)
+    (-y, x)
+\end{equation}
+OTHER CHOICES.
+The accuracy of a cutoff function is tipically measured by its moment properties.
+
+The evaluation of the velocity is performed by means of
+the discrete Biot-Savart law.
+The na\"{\i}ve algorithm is
+to compute the~\(N\)-term sum in equation~\ref{eq:discrete-biot-savart-law}
+for each of the~\(N\) particles,
+so velocity evaluation requires~\(O(N^2)\) operations.
+Fast summation methods allow to reduce the operation count
+by employing a hierarchical domain decomposition and
+controlled approximations for the interaction of distant particles.
+Two well-known fast summation methods are
+Barnes-Hut's~\cite{barnes86} and
+the Fast Multipole Method~\cite{greengard87},
+which require respectively~\(O(N\log N)\) and~\(O(N)\) operations.
+
 
