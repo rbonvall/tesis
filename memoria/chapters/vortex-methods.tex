@@ -7,6 +7,7 @@ of incompressible viscous flows at high Reynold numbers~\cite{cottet00}.
 In this chapter, the 2-D Vortex Blob Method is introduced,
 along with its algorithmic characteristics.
 
+
 \section{The mathematics of vorticity}
 \label{sec:eqs-vort}
 
@@ -25,7 +26,7 @@ It follows from the definition of vorticity that also~\(\nabla\cdot\mathbold\vor
 
 The vorticity is orthogonal to the velocity on every point of the fluid.
 Therefore, in a two-dimensional flow,
-the only non-zero component of the vorticity is the \(z\) component. 
+the only non-zero component of the vorticity is the \(z\) component.
 It this case, it is customary to consider the vorticity as a scalar field
 \(\vort = v_x - u_y\)\footnotemark,
 such that \(\mathbold\vort = \vort\hat{\vec k}\).
@@ -122,7 +123,6 @@ For other boundary conditions, the Biot-Savart law must be modified
 to take into account the boundaries.
 
 
-
 \section{The 2-D Vortex Blob Method}
 \label{sec:vortex-blob-method}
 
@@ -174,9 +174,9 @@ The mollified kernel~\(\K_\e\) is then set as \(\K_\e = \K * \zeta_\e\),
 and then the method is formulated as the numerical integration
 of the system of ordinary differential equations:
 \begin{align}
-  \label{eq:vortex-blob-position-ode}
+  \label{eq:vortex-blob-convection}
   \frac{d\x_p^h}{dt}  &= \vel^h(\vec x_p^t, t) \\
-  \label{eq:vortex-blob-vorticity-ode}
+  \label{eq:vortex-blob-diffusion}
   \frac{d\vort^h}{dt} &= \nu\lapl\vort^h
 \end{align}
 with \(\vel^h = \K_\e * \vort^h\).
@@ -191,6 +191,7 @@ which gives the velocity formula:
   \label{eq:discrete-biot-savart-law}
   \vel^h = \sum_p\circulation_p\K_\e(\x - \x_p^h).
 \end{equation}
+
 
 \section{Algorithmic features of Vortex Methods}
 The implementation of a Vortex Blob Method requires several design decisions
@@ -230,6 +231,7 @@ The basic stages of a Vortex Method are those shown in figure~\ref{fig:vm-blocks
 Each of these stages can be implemented in several different ways.
 The discussion below presents some of the alternatives that are possible,
 but it is by no means comprehensive.
+
 
 \subsection{Discretization}
 \label{ssec:discretization}
@@ -279,6 +281,7 @@ and their accuracy is measured by their moment properties.
 A cutoff is said to be of order \(r\) if its \(r\)-th moment is finite
 and its moments less than the $r$-th are zero.
 
+
 \subsection{Velocity evaluation}
 \label{ssec:vel-eval}
 
@@ -296,21 +299,84 @@ Barnes-Hut's~\cite{barnes86} and
 the Fast Multipole Method~\cite{greengard87},
 which require respectively~\(O(N\log N)\) and~\(O(N)\) operations.
 
+
 \subsection{Convection}
 \label{ssec:convection}
 
 The convection stage consists in moving the particles along the flow.
-by integrate equation~\ref{eq:vortex-blob-position-ode}
+by integrating equation~\ref{eq:vortex-blob-convection}
 with a time-stepping algorithm.
 The methods of Runge-Kutta and Adams-Bashforth are tipically used.
+As opposed to a simple Euler integrator,
+these methods require several velocity evaluations per iteration.
+
 
 \subsection{Diffusion}
 \label{ssec:diffusion}
 
+%The treatment of diffusion amounts to integrating equation
+Handling the effects of diffusion,
+described by equation~\ref{eq:vortex-blob-diffusion},
+is complicated in a pure Lagrangian frame.
+Several schemes have been proposed.
+\cite[\S5]{cottet00}
+
+In viscous splitting methods,
+convection and diffusion are solved separatedly
+in substeps within an iteration.
+First, the fluid elements are advanced,
+and then the difussion acts at the new locations
+to modify the vorticity field of the flow~\cite[\S5.1]{cottet00}.
+
+The Random Walk method
+simulates the diffusion as a Brownian-like motion of the particles.
+This relies on the probabilistic interpretation of
+the Green's function integral solution to equation~\ref{eq:vortex-blob-diffusion}.
+Particle positions are updated as~\(\x_p^{(n + 1)} = \x_p^{(n)} + \mathbold\xi_p^{(n)}\),
+where the last term is drawn with a Gaussian probability distribution
+whose variance is a function of the viscosity of the fluid and the timestep.
+The circulation of the particles is not updated.
+
+The Particle Strength Exchange method
+simulates the diffusion as an exchange of circulation
+between particles~\cite{cko00}.
+The diffusion operator is replaced by an integral one,
+which is discretized as a sum akin to the velocity evaluation formula:
+\begin{equation}
+  \frac{D\vort_p}{Dt} =
+    \nu\e^{-2}\sum_q v_q [\vort_q - \vort_p] \eta_\e(\x_p - \x_q),
+\end{equation}
+with a proper choice of a spherically symmetric function~\(\eta\).
+As opposed to the Random Walk method,
+the circulation of the particles is updated instead of their positions.
+
+
 \subsection{Satisfaction of boundary conditions}
 \label{ssec:bcs}
 
+Boundary conditions other than free-space flow must be enforced explicitly.
 
+Kinematic boundary conditions can be expressed as an aditional term
+in the velocity evaluation in terms of the potential function
+of the solenoidal component of the velocity~\cite[\S4.2]{cottet00}.
+%Discretization of the integral
+
+A periodic boundary condition is handled
+by replacing the Biot-Savart kernel
+with its periodic version~\(\K_L=\sum_{i,j}\K\bigl(\x + (i, j)L\bigr)\)~%
+\cite[\S2.5]{cottet00}.
+
+
+\subsection{Spatial adaption}
+\label{ssec:sa}
+
+Spatial adaption methods resample the vorticity field discretization
+by modifying the particle set.
+Particles can be created, eliminated, merged, split,
+and remeshed into regular grids,
+and their core sizes~\(\e\) can be made to be variable.
+
+These techniques will be not taken into account in this work.
 
 
 
