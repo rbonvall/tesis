@@ -280,6 +280,7 @@ Other choices are possible,
 and their accuracy is measured by their moment properties.
 A cutoff is said to be of order \(r\) if its \(r\)-th moment is finite
 and its moments less than the $r$-th are zero.
+Non-negative cutoffs cannot be of order more than 2.
 
 
 \subsection{Velocity evaluation}
@@ -356,15 +357,37 @@ the circulation of the particles is updated instead of their positions.
 
 Boundary conditions other than free-space flow must be enforced explicitly.
 
-Kinematic boundary conditions can be expressed as an aditional term
-in the velocity evaluation in terms of the potential function
-of the solenoidal component of the velocity~\cite[\S4.2]{cottet00}.
-%Discretization of the integral
-
 A periodic boundary condition is handled
 by replacing the Biot-Savart kernel
 with its periodic version~\(\K_L=\sum_{i,j}\K\bigl(\x + (i, j)L\bigr)\)~%
 \cite[\S2.5]{cottet00}.
+
+Solid bodies impose the no-penetration (or no-flow-through) condition,
+namely that, at the boundary,
+the normal velocities of the flow and the body are equal.
+For the case of viscous flows, there is also a no-slip condition,
+imposing that the tangential velocity also vanishes at the boundary;
+this is, the fluid sticks to the wall.
+
+The no-penetration condition can be expressed as an aditional term
+in the velocity evaluation in terms of the potential function
+of the solenoidal component of the velocity~\cite[\S4.2]{cottet00}.
+There are many techniques used to satisfy this condition
+for different kinds of problems.
+In panel methods, a more general technique,
+the boundary is discretized
+with a set of quadrilateral or triangular elements
+on which singularities are distributed,
+whose circulations need to be solved for
+in order to calculate their effects on all the particles~\cite[\S2.4]{rama09}.
+
+The standard way to enforce the no-slip condition
+is related to the physical phenomenon of vorticity generation at the boundary.
+Several schemes have been proposed
+to simulate the creation of vorticity~\cite[\S6]{cottet00}.
+For example, a vortex sheet can be introduced at the surface
+after the enforcement of no-penetration in order to cancel the slip,
+as proposed by Chorin~\cite[\S6.3.2]{cottet00}.
 
 
 \subsection{Spatial adaption}
@@ -376,7 +399,7 @@ Particles can be created, eliminated, merged, split,
 and remeshed into regular grids,
 and their core sizes~\(\e\) can be made to be variable.
 
-These techniques will be not taken into account in this work.
+These techniques will not be taken into account in this work.
 
 
 
