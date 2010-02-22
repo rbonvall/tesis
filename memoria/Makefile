@@ -27,12 +27,12 @@ $(DOCUMENT).pdf: $(DEPENDENCIES)
 	@$(LATEX) -halt-on-error -interaction=nonstopmode $(DOCUMENT).tex &> .my_log || (cat .my_log && rm .my_log && exit 1)
 	@rm .my_log
 	@if [[ "${HAVE_BIB}" == "yes" ]]; then \
-	echo "   Compiling references..." && \
-	(bibtex $(DOCUMENT) &> .my_log || (cat .my_log && rm .my_log && exit 1)) && \
-	rm .my_log && \
-	echo "   Re-making document including bibliography..." && \
-	$(LATEX) -halt-on-error -interaction=nonstopmode $(DOCUMENT).tex &> .my_log || (cat .my_log && rm .my_log && exit 1) && \
-	rm .my_log; \
+	    echo "   Compiling references..." && \
+	    (bibtex $(DOCUMENT) &> .my_log || (cat .my_log && rm .my_log && exit 1)) && \
+	    rm .my_log && \
+	    echo "   Re-making document including bibliography..." && \
+	    $(LATEX) -halt-on-error -interaction=nonstopmode $(DOCUMENT).tex &> .my_log || (cat .my_log && rm .my_log && exit 1) && \
+	    rm .my_log; \
 	fi
 	@echo "   Re-making document for satisfying references..."
 	@$(LATEX) $(DOCUMENT) &> /dev/null
