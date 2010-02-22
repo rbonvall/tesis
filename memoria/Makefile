@@ -6,14 +6,14 @@ DOCUMENT=$(shell grep -H ^[^%].*\\documentclass *.tex | cut -d: -f1 | cut -d. -f
 
 DEPENDENCIES=$(DOCUMENT).tex chapters/*.tex
 
-ifeq ($(strip $(wildcard $(DOCUMENT).bib) ),)
+ifeq ($(strip $(wildcard *.bib) ),)
   HAVE_BIB=no
 else
   HAVE_BIB=yes
 endif
 
 ifeq '$(HAVE_BIB)' 'yes'
-  DEPENDENCIES+= $(strip $(wildcard $(DOCUMENT).bib) )
+  DEPENDENCIES+= $(strip $(wildcard *.bib) )
 endif
 
 IMGDIR = img
@@ -21,13 +21,6 @@ IMGDIR = img
 .PHONY: all bib clean distclean help
 
 all: $(DOCUMENT).pdf
-
-bib: clean
-	@echo "   Making document to get needed references..."
-	@$(LATEX) -halt-on-error -interaction=nonstopmode $(DOCUMENT).tex &> .my_log || (cat .my_log && rm .my_log && exit 1)
-	@rm .my_log
-	@echo "   Generating bibliography..."
-	@bibtool -q -x $(DOCUMENT).aux $(BIBDIR)/*.bib > $(DOCUMENT).bib 
 
 $(DOCUMENT).pdf: $(DEPENDENCIES)
 	@echo "   Making document for first time..."
