@@ -1,3 +1,44 @@
-\chapter{GPU Computing}
+\chapter{GPU computing}
 \label{ch:gpu-computing}
+
+(This chapter's bibliography:
+\cite{cudaprog2} \cite{owens08} \cite{jansen07} \cite{lejdfors08}%
+)
+
+%\begin{figure}
+%  \centering
+%  \begin{tikzpicture}
+%    \draw[color=blue] (0, 0) grid (8, 1);
+%    \node[draw] (cpuct) at (2, 2) {Compile time};
+%    \node[draw] (cpurt) at (7, 2) {Run time};
+%    \node[draw,anchor=west] (gpuct) at (4, 1) {Compile time};
+%    \node[draw,anchor=east] (gpurt) at (10, 1) {Run time};
+%    \draw[color=red] (0, 0.55) rectangle (10, 1.45);
+%    \draw[color=red] (0, 1.55) rectangle (10, 2.45);
+%    \draw[->] (cpuct) to (cpurt);
+%    \draw[->] (gpuct) to (gpurt);
+%  \end{tikzpicture}
+%\end{figure}
+
+Graphics processors (GPUs) have evolved in the last decade
+from being fixed-function specialized hardware units
+for accelerating the graphics pipeline
+into programable high-throughput parallel processors,
+capable of being used for general-purpose computations.
+
+Programming for the GPUs is markedly different
+than for single chip processor though.
+Massive parallelism,
+hardware constraints,
+data access latency and
+the impact of low level minutiae on performance
+impose a different mindset for implementing algorithms.
+This chapter presents the concepts
+about GPU computing that are relevant to this thesis.
+
+\section{Architecture of a GPU}
+
+\section{Streaming paradigm}
+
+\section{CUDA}
 
