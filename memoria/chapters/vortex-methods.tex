@@ -11,25 +11,25 @@ along with its algorithmic characteristics.
 \section{The mathematics of vorticity}
 \label{sec:eqs-vort}
 
-The vorticity field \(\mathbold\vort\)
+The vorticity field \(\mathbold\omega\)
 of a fluid flow with velocity field~\(\vel = (u, v, w)\)
 is defined as:%
 \begin{equation}
   \label{eq:vorticity}
-  \mathbold\vort = \curl\vel.
+  \mathbold\omega = \curl\vel.
 \end{equation}
 
 Incompressible fluids are those for which
 the volume of fluid elements remains constant in time.
-This condition is described mathematically as~\(\nabla\cdot\vel = 0\).
-It follows from the definition of vorticity that also~\(\nabla\cdot\mathbold\vort = 0\).
+This condition is described mathematically as~\(∇\cdot\vel = 0\).
+It follows from the definition of vorticity that also~\(∇\cdot\mathbold\omega = 0\).
 
 The vorticity is orthogonal to the velocity on every point of the fluid.
 Therefore, in a two-dimensional flow,
 the only non-zero component of the vorticity is the \(z\) component.
 It this case, it is customary to consider the vorticity as a scalar field
-\(\vort = v_x - u_y\)\footnotemark,
-such that \(\mathbold\vort = \vort\hat{\vec k}\).
+\(ω = v_x - u_y\)\footnotemark,
+such that \(\mathbold\omega = ω\hat{\vec k}\).
 
 \footnotetext{Unless otherwise stated, subindices represent partial derivatives.}
 
@@ -39,10 +39,10 @@ These laws are typically presented in an Eulerian reference frame,
 where the equations are developed from the local analysis of the flow
 in a fixed location in space, and are respectively:
 \begin{align}
-  \rho_t + \divergence(\rho\vel) &= 0, \\
-  \rho(\vel_t + \vel\cdot\nabla\vel) &= -\nabla p + \mu\lapl\vel;
+  ρ_t + \divergence(ρ\vel) &= 0, \\
+  ρ(\vel_t + \vel\cdot∇\vel) &= -∇p + μ\,Δ\vel;
 \end{align}
-where \(\rho\) and \(p\) are the density and the pressure fields,
+where \(ρ\) and \(p\) are the density and the pressure fields,
 and \(\mu\) is the dynamic viscosity of the fluid.
 These equations are also known respectively as
 the continuity equation and the Navier-Stokes equation.
@@ -60,63 +60,63 @@ Both reference frames are conveniently related
 by the material derivative operator \(D/Dt\),
 defined as:
 \begin{equation}
-  \frac{D}{Dt} = \frac{\partial}{\partial t} + (\vel\cdot\nabla),
+  \frac{D}{Dt} = \frac{\partial}{\partial t} + (\vel\cdot∇),
 \end{equation}
 which accounts for the rate change of a quantity along the flow trajectories.
 
 The laws of conservation of mass and momentum in Lagrangian coordinates are:
 \begin{align}
   \label{eq:lagrangian-mass-conservation}
-  \frac{D\rho}{Dt} &= -\rho\divergence(\vel), \\
+  \frac{Dρ}{Dt} &= -ρ\divergence(\vel), \\
   \label{eq:lagrangian-momentum-conservation}
-  \rho\frac{D\vel}{Dt} &= -\nabla p + \mu\lapl\vel.
+  ρ\frac{D\vel}{Dt} &= -∇p + μ\,Δ\vel.
 \end{align}
 For an incompressible flow,
-equation~\ref{eq:lagrangian-mass-conservation} reduces to \(D\rho/Dt = 0\),
+equation~\ref{eq:lagrangian-mass-conservation} reduces to \(Dρ/Dt = 0\),
 thus density is constant for fluid elements along the flow.
 
 By taking the curl to equation~\ref{eq:lagrangian-momentum-conservation},
 the velocity-vorticity formulation of the Navier-Stokes equation is obtained:
 \begin{equation}
   \label{eq:velocity-vorticity-navier-stokes}
-  \rho\frac{D\mathbold\vort}{Dt} = \rho\mathbold\vort\cdot\nabla\vel +
-                                   \mu\lapl\mathbold\vort.
+  ρ\frac{D\mathbold\omega}{Dt} = ρ\mathbold\omega\cdot∇\vel +
+                                   μ\,Δ\mathbold\omega.
 \end{equation}
 In two dimensions, the vorticity has no component along the velocity gradients,
 so the first term in the right-hand side,
 which is the rate of deforming vortex lines due to vortex stretching,
 vanishes.  In this case, the flow is completely determined by the equations:
 \begin{align}
-  \frac{D\vort}{Dt} &= \nu\lapl\vort, \\
+  \frac{Dω}{Dt} &= ν\,Δω, \\
   \divergence\vel &= 0, \\
-  \curl\vel &= \vort\hat{\vec k}, \\
-  \vort(\,\cdot\,{}, 0) &= \vort_0;
+  \curl\vel &= ω\hat{\vec k}, \\
+  ω(\,\cdot\,{}, 0) &= ω_0;
 \end{align}
-where \(\nu = \mu/\rho\) is the kinematic viscosity of the fluid.
+where \(ν = μ/ρ\) is the kinematic viscosity of the fluid.
 In this formulation, the pressure \(p\) drops out of the equations,
 so it does not need to be solved for.
 
 The velocity field can be recovered from the vorticity by solving the Poisson's equation:
 \begin{equation}
-  \lapl\vel = -\curl\mathbold\vort
+  Δ\vel = -\curl\mathbold\omega
 \end{equation}
 with suitable boundary conditions.
-The Biot-Savart law gives the solution to this equation as an integral over \(\vort\)
+The Biot-Savart law gives the solution to this equation as an integral over \(ω\)
 in terms of the Green's function \(\mathbf G\) for the Poisson's equation:
 \begin{equation}
   \label{eq:integral-biot-savart-law}
-  \vel(\x, t) = \int\bigl(\curl\mathbf G\bigr)(\x - \x')\,\vort(\x', t)\,d\x'.
+  \vel(\x, t) = \int\bigl(\curl\mathbf G\bigr)(\x - \x')\,ω(\x', t)\,d\x'.
 \end{equation}
 By defining the Biot-Savart kernel~\(\K = \curl\mathbf G\),
 the Biot-Savart law can be succinctly stated as a convolution against the vorticity field:
 \begin{equation}
   \label{eq:biot-savart-law}
-  \vel = \K * \vort.
+  \vel = \K * ω.
 \end{equation}
 In two dimensions, the kernel~\(\K\) is given by:
 \begin{equation}
   \label{eq:2d-biot-savart-kernel}
-  \K(x, y) = -\frac{1}{2\pi\norm\x}\bigl(-y, x\bigr).
+  \K(x, y) = -\frac{1}{2π \norm\x}\bigl(-y, x\bigr).
 \end{equation}
 The discussion so far assumes that the flow evolves in free space.
 For other boundary conditions, the Biot-Savart law must be modified
@@ -132,7 +132,7 @@ When solved, they determine the evolution in time of vorticity-carrying particle
 
 The basic idea in Vortex Methods is
 to sample the computational domain into cells
-inside which an initial circulation \(\circulation_p\) is concentrated on a single point,
+inside which an initial circulation \(α_p\) is concentrated on a single point,
 which is referred to as a particle.
 
 Kelvin's theorem asserts that circulation is conserved
@@ -146,14 +146,14 @@ The original formulation by Rosenhead~\cite{rosenhead31} was the Point Vortex Me
 in which the initial vorticity was approximated as:
 \begin{equation}
   \label{eq:point-vortex-method-initial-vorticity}
-  \vort_0\approx\sum_p\circulation_p\delta(\x - \x_p).
+  ω_0\approx\sum_p α_p δ(\x - \x_p).
 \end{equation}
 Thus, an approximation of the vorticity at time \(t\) is given by:
 \begin{equation}
   \label{eq:point-vortex-method-approximation}
-  \vort^h(\x, t)=\sum_p\circulation_p\delta\bigl(\x - \x^h_p(t)\bigr),
+  ω^h(\x, t)=\sum_p α_p δ\bigl(\x - \x^h_p(t)\bigr),
 \end{equation}
-and the velocity~\(\vel^h\) is restored from~\(\vort^h\)
+and the velocity~\(\vel^h\) is restored from~\(ω^h\)
 by some approximation of the Biot-Savart law.
 Because of the singularity of the kernel~\(\K\),
 this can lead to arbitrarily large values of~\(\vel^h\)
@@ -161,35 +161,35 @@ when particles approach each other.
 
 The Vortex Blob Method, proposed by Chorin,
 overcomes this difficulty by introducing
-a mollification~\(\K_\e\) of the Biot-Savart kernel.
-First, a smooth cutoff function~\(\zeta\) is chosen
-such that~\(\int\zeta(\x)\,d\x = 1\),
-which is scaled with a parameter~\(\e\)
-to obtain the function~\(\zeta_\e\)
+a mollification~\(\K_ε\) of the Biot-Savart kernel.
+First, a smooth cutoff function~\(ζ\) is chosen
+such that~\(\int ζ(\x)\,d\x = 1\),
+which is scaled with a parameter~\(ε\)
+to obtain the function~\(ζ_ε\)
 that represents a mollified particle:
 \begin{equation}
-  \zeta_\e(\x) = \e^{-2}\zeta(\x/\e).
+  ζ_ε(\x) = ε^{-2} ζ(\x/ε).
 \end{equation}
-The mollified kernel~\(\K_\e\) is then set as \(\K_\e = \K * \zeta_\e\),
+The mollified kernel~\(\K_ε\) is then set as \(\K_ε = \K * ζ_ε\),
 and then the method is formulated as the numerical integration
 of the system of ordinary differential equations:
 \begin{align}
   \label{eq:vortex-blob-convection}
   \frac{d\x_p^h}{dt}  &= \vel^h(\vec x_p^t, t) \\
   \label{eq:vortex-blob-diffusion}
-  \frac{d\vort^h}{dt} &= \nu\lapl\vort^h
+  \frac{dω^h}{dt} &= ν\,Δω^h
 \end{align}
-with \(\vel^h = \K_\e * \vort^h\).
+with \(\vel^h = \K_ε * ω^h\).
 
-The vorticity field~\(\vort_\e^h\) is approximated as the sum of the
+The vorticity field~\(ω_ε^h\) is approximated as the sum of the
 circulation contributions of all mollified particles:
 \begin{equation}
-  \vort_\e^h = \sum_p\circulation_p\zeta_\e(\x - \x_p^h),
+  ω_ε^h = \sum_p α_p ζ_ε(\x - \x_p^h),
 \end{equation}
 which gives the velocity formula:
 \begin{equation}
   \label{eq:discrete-biot-savart-law}
-  \vel^h = \sum_p\circulation_p\K_\e(\x - \x_p^h).
+  \vel^h = \sum_p α_p \K_ε(\x - \x_p^h).
 \end{equation}
 
 
@@ -239,19 +239,19 @@ but it is by no means comprehensive.
 During the discretization stage,
 the position and circulation of the particles is set
 in order to represent accurately the initial vorticity field.
-This includes the choice of the cutoff function~\(\zeta\).
+This includes the choice of the cutoff function~\(ζ\).
 
 Some classes of methods for particle initialization
 described in~\cite[\S2.4]{cottet00} are:
 \begin{enumerate}
-  \item splitting~\(\supp\vort_0\) in regular cells
+  \item splitting~\(\supp ω_0\) in regular cells
     and initializing a particle at the center of each cell;
-  \item splitting~\(\supp\vort_0\) in regular cells,
+  \item splitting~\(\supp ω_0\) in regular cells,
     and for each of them initialize a particle in a random position inside it.
-  \item initializing particles randomly in~\(\supp\vort_0\);
+  \item initializing particles randomly in~\(\supp ω_0\);
 \end{enumerate}
-If the initial circulation~\(\circulation_p\) is unknown,
-it can be set to~\(\circulation_p = \vort_0(\x_p) v_p\),
+If the initial circulation~\(α_p\) is unknown,
+it can be set to~\(α_p = ω_0(\x_p) v_p\),
 where \(v_p\) is the volume of the cell
 (or an average volume, in the case of random initialization).
 Each initialization scheme has different quadrature properties
@@ -261,17 +261,17 @@ Cutoff functions can be constructed in several different ways,
 some of which are described in~\cite[\S2.3]{cottet00}.
 A customary choice is a Gaussian cutoff:
 \begin{equation}
-  \zeta_{\sigma k}(\x) =
-    \frac{1}{k\pi\sigma^2}
-    \exp\left\{\frac{-\norm{\x}^2}{k\sigma^2}\right\},
+  ζ_{σk}(\x) =
+    \frac{1}{kπσ^2}
+    \exp\left\{\frac{-\norm{\x}^2}{kσ^2}\right\},
 \end{equation}
 which yields an analytical expression for the velocity kernel:
 \begin{equation}
   \K_{\sigma k}(\x) =
-    \frac{1}{k\pi\norm{\x}^2}
+    \frac{1}{kπ \norm{\x}^2}
     \left(
       1 - \exp\left\{
-        \frac{-\norm{\x}^2}{k\sigma^2}
+        \frac{-\norm{\x}^2}{kσ^2}
       \right\}
     \right)
     (-y, x).
@@ -344,10 +344,10 @@ between particles~\cite{cko00}.
 The diffusion operator is replaced by an integral one,
 which is discretized as a sum akin to the velocity evaluation formula:
 \begin{equation}
-  \frac{D\vort_p}{Dt} =
-    \nu\e^{-2}\sum_q v_q [\vort_q - \vort_p] \eta_\e(\x_p - \x_q),
+  \frac{Dω_p}{Dt} =
+    νε^{-2}\sum_q v_q [ω_q - ω_p] η_ε(\x_p - \x_q),
 \end{equation}
-with a proper choice of a spherically symmetric function~\(\eta\).
+with a proper choice of a spherically symmetric function~\(η\).
 As opposed to the Random Walk method,
 the circulation of the particles is updated instead of their positions.
 
@@ -397,7 +397,7 @@ Spatial adaption methods resample the vorticity field discretization
 by modifying the particle set.
 Particles can be created, eliminated, merged, split,
 and remeshed into regular grids,
-and their core sizes~\(\e\) can be made to be variable.
+and their core sizes~\(ε\) can be made to be variable.
 
 These techniques will not be taken into account in this work.
 
