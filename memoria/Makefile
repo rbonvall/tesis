@@ -40,6 +40,7 @@ $(DOCUMENT).pdf: $(DEPENDENCIES)
 clean:
 	@echo "   Deleting auxiliary files..."
 	-@rm -f $(DOCUMENT).{aux,toc,log,tmp,dvi,idx,ilg,ind,bbl,blg,out,lof,lot} .my_log
+	-@rm -f chapters/*.aux
 
 distclean: clean
 	@echo "   Deleting all generated files..."
