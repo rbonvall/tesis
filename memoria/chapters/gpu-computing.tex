@@ -5,21 +5,6 @@
 \cite{cudaprog2} \cite{owens08} \cite{jansen07} \cite{lejdfors08}%
 )
 
-%\begin{figure}
-%  \centering
-%  \begin{tikzpicture}
-%    \draw[color=blue] (0, 0) grid (8, 1);
-%    \node[draw] (cpuct) at (2, 2) {Compile time};
-%    \node[draw] (cpurt) at (7, 2) {Run time};
-%    \node[draw,anchor=west] (gpuct) at (4, 1) {Compile time};
-%    \node[draw,anchor=east] (gpurt) at (10, 1) {Run time};
-%    \draw[color=red] (0, 0.55) rectangle (10, 1.45);
-%    \draw[color=red] (0, 1.55) rectangle (10, 2.45);
-%    \draw[->] (cpuct) to (cpurt);
-%    \draw[->] (gpuct) to (gpurt);
-%  \end{tikzpicture}
-%\end{figure}
-
 Graphics processors (GPUs) have evolved in the last decade
 from being fixed-function specialized hardware units
 for accelerating the graphics pipeline
@@ -38,7 +23,90 @@ about GPU computing that are relevant to this thesis.
 
 \section{Architecture of a GPU}
 
+Modern programmable GPUs are aggressively pipelined,
+multithreaded, manycore processors
+specialized in floating point calculations.
+
+The GPU delivers high throughput not by accelerating individual operations
+(any of which has greater latency than on the CPU),
+but by means of executing many threads in parallel.
+It achieves this by devoting more transistors to data processing
+rather than data caching and flow control~\cite[\S1]{cudaprog2},
+as illustrated by figure~\ref{fig:transistors}.
+
+\begin{figure}
+  \centering
+  \tikzstyle{trans-name}=[anchor=north west]
+  \tikzstyle{ctrl}=[fill=green!30]
+  %\tikzstyle{alu}=[fill=red!80!black!40]
+  \tikzstyle{alu}=[pattern color=red!80!black!40, pattern=north east lines]
+  \tikzstyle{cache}=[fill=blue!30]
+  \tikzstyle{dram}=[fill=blue!30]
+  \subfigure[CPU] {
+    \begin{tikzpicture}[scale=0.8]
+      \foreach \x/\y/\w/\h/\type/\name in {
+        0/6/3/2/ctrl/Control,
+        0/4/6/2/cache/Cache,
+        0/1.5/6/1/dram/DRAM,
+        3/5/1.5/1/alu/ALU,
+        3/6/1.5/1/alu/ALU,
+        4.5/5/1.5/1/alu/ALU,
+        4.5/6/1.5/1/alu/ALU
+      }
+      {
+        \draw[\type] (\x, \y) rectangle +(\w, -\h);
+        \node[trans-name] at (\x, \y) {\name};
+      }
+    \end{tikzpicture}
+  }
+  \subfigure[GPU] {
+    \begin{tikzpicture}[scale=0.8]
+      \draw[dram] (0, 1.5) rectangle +(6, -1);
+      \node[trans-name] at (0, 1.5) {DRAM};
+      \foreach \x in {0.5, 1, ..., 5.5}
+        \foreach \y in {2.5, 3, ..., 6}
+          \draw[alu] (\x, \y) rectangle +(0.5, -0.5);
+      \foreach \y in {2.5, 3, ..., 6}
+        \draw[ctrl] (0, \y) rectangle +(0.5, -0.25);
+      \foreach \y in {2.25, 2.75, ..., 6}
+        \draw[cache] (0, \y) rectangle +(0.5, -0.25);
+    \end{tikzpicture}
+  }
+  \label{fig:transistors}
+  \caption{
+    Comparison between the amount of transistors
+    devoted to different functions inside a CPU and a GPU.
+    %Arithmetic logic units (ALUs) perform data processing.
+    (This picture is taken from~\cite[\S1]{cudaprog2}).
+  }
+\end{figure}
+
+
 \section{Streaming paradigm}
 
+The programming model of the GPU is classified as single-program multiple-data (SPMD):
+several instances of the same program are executed in parallel
+on different data.
+
+The two main abstractions of the streaming paradigm are streams and kernels.
+
+A stream is a collection of data which can be operated on in parallel.
+
+Kernels are special functions, which operate on streams.
+Calling a kernel on a stream
+performs an implicit loop over the elements of the stream,
+invoking the body of the kernel for each element.
+
+
 \section{CUDA}
+
+CUDA is the GPU architecture and development environment
+introduced by the NVIDIA hardware vendor,
+
+
+
+
+
+
+
 
