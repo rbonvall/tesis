@@ -37,17 +37,15 @@ as illustrated by figure~\ref{fig:transistors}.
 \begin{figure}
   \centering
   \tikzstyle{trans-name}=[anchor=north west]
-  \tikzstyle{ctrl}=[fill=green!30]
-  %\tikzstyle{alu}=[fill=red!80!black!40]
-  \tikzstyle{alu}=[pattern color=red!80!black!40, pattern=north east lines]
-  \tikzstyle{cache}=[fill=blue!30]
-  \tikzstyle{dram}=[fill=blue!30]
+  \tikzstyle{alu}=[fill=red!80!black!30]
+  \tikzstyle{data}=[pattern color=blue!60, pattern=north east lines]
+  \tikzstyle{ctrl}=[pattern color=green!80!black!60, pattern=north west lines]
   \subfigure[CPU] {
     \begin{tikzpicture}[scale=0.8]
       \foreach \x/\y/\w/\h/\type/\name in {
         0/6/3/2/ctrl/Control,
-        0/4/6/2/cache/Cache,
-        0/1.5/6/1/dram/DRAM,
+        0/4/6/2/data/Cache,
+        0/1.5/6/1/data/DRAM,
         3/5/1.5/1/alu/ALU,
         3/6/1.5/1/alu/ALU,
         4.5/5/1.5/1/alu/ALU,
@@ -61,7 +59,7 @@ as illustrated by figure~\ref{fig:transistors}.
   }
   \subfigure[GPU] {
     \begin{tikzpicture}[scale=0.8]
-      \draw[dram] (0, 1.5) rectangle +(6, -1);
+      \draw[data] (0, 1.5) rectangle +(6, -1);
       \node[trans-name] at (0, 1.5) {DRAM};
       \foreach \x in {0.5, 1, ..., 5.5}
         \foreach \y in {2.5, 3, ..., 6}
@@ -69,7 +67,7 @@ as illustrated by figure~\ref{fig:transistors}.
       \foreach \y in {2.5, 3, ..., 6}
         \draw[ctrl] (0, \y) rectangle +(0.5, -0.25);
       \foreach \y in {2.25, 2.75, ..., 6}
-        \draw[cache] (0, \y) rectangle +(0.5, -0.25);
+        \draw[data] (0, \y) rectangle +(0.5, -0.25);
     \end{tikzpicture}
   }
   \label{fig:transistors}
