@@ -77,6 +77,18 @@ as illustrated by figure~\ref{fig:transistors}.
   }
 \end{figure}
 
+This arrangement is what makes the GPU
+well-suited for computations
+for which the data is distributed among processors
+for the same program to be executed on them in parallel.
+This is called \emph{data parallelism}.
+Data-parallel computations have lower requirements
+for sophisticated flow control
+and can hide the memory access latency with calculations
+instead of caches~\cite[\S1.2]{cudaprog2}.
+
+
+
 
 \section{Streaming paradigm}
 
@@ -86,9 +98,9 @@ on different data.
 
 The two main abstractions of the streaming paradigm are streams and kernels.
 
-A stream is a collection of data which can be operated on in parallel.
+A \emph{stream} is a collection of data which can be operated on in parallel.
 
-Kernels are special functions, which operate on streams.
+\emph{Kernels} are special functions which operate on streams.
 Calling a kernel on a stream
 performs an implicit loop over the elements of the stream,
 invoking the body of the kernel for each element.
@@ -97,7 +109,46 @@ invoking the body of the kernel for each element.
 \section{CUDA}
 
 CUDA is the GPU architecture and development environment
-introduced by the NVIDIA hardware vendor,
+introduced by the Nvidia hardware vendor.
+
+CUDA extends the C programming language
+with syntatic support for defining kernels
+to be executed on the GPU
+and a runtime library.
+Source files must be compiled with the \texttt{nvcc} compiler,
+which separates the code sections meant to execute on the GPU
+and compiles them into binary objects called \emph{cubins}.
+
+CUDA provides three key abstractions.
+\begin{enumerate}
+  \item A hierarchy of threads,
+    which comprises, from finer- to coarser-grained:
+    \begin{itemize}
+        \item single \emph{threads},
+          identified by a three-dimensional index;
+        \item thread \emph{blocks}
+          of up to 512 threads
+          that reside on the same processor,
+          can cooperate by sharing data
+          through local shared memory,
+          and can synchronize; and
+        \item a \emph{grid} of blocks
+          for organizing the blocks
+          into which the problem was decomposed.
+    \end{itemize}
+  \item A hierarchy of shared memory,
+  \item Barrier synchronization.
+\end{enumerate}
+These abstractions provide
+support for both task parallelism and data parallelism.
+The strategy this suggests for programming
+is decomposing problems into coarse subproblems
+that can be solved independently,
+and then into finer pieces
+than can be solved cooperatively in parallel~\cite[\S1.1]{cudaprog2}
+
+
+
 
 
 
