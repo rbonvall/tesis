@@ -42,19 +42,17 @@ as illustrated by figure~\ref{fig:transistors}.
   \tikzstyle{ctrl}=[pattern color=green!80!black!60, pattern=north west lines]
   \subfigure[CPU] {
     \begin{tikzpicture}[scale=0.8]
-      \foreach \x/\y/\w/\h/\type/\name in {
-        0/6/3/2/ctrl/Control,
-        0/4/6/2/data/Cache,
-        0/1.5/6/1/data/DRAM,
-        3/5/1.5/1/alu/ALU,
-        3/6/1.5/1/alu/ALU,
-        4.5/5/1.5/1/alu/ALU,
-        4.5/6/1.5/1/alu/ALU
-      }
-      {
-        \draw[\type] (\x, \y) rectangle +(\w, -\h);
-        \node[trans-name] at (\x, \y) {\name};
-      }
+      \draw[ctrl] (0, 6)   rectangle +(3, -2);
+      \draw[data] (0, 4)   rectangle +(6, -2);
+      \draw[data] (0, 1.5) rectangle +(6, -1);
+      \node[trans-name] at (0, 6) {Control};
+      \node[trans-name] at (0, 4) {Cache};
+      \node[trans-name] at (0, 1.5) {DRAM};
+      \foreach \x in {3, 4.5}
+        \foreach \y in {5, 6} {
+          \draw[alu] (\x, \y) rectangle +(1.5, -1);
+          \node[trans-name] at (\x, \y) {ALU};
+        }
     \end{tikzpicture}
   }
   \subfigure[GPU] {
