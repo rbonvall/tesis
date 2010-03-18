@@ -137,15 +137,28 @@ CUDA provides three key abstractions.
           into which the problem was decomposed.
     \end{itemize}
   \item A hierarchy of shared memory,
-  \item Barrier synchronization.
+    with different addressing and performance characteristics,
+    comprising:
+    \begin{itemize}
+        \item per-thread \emph{registers};
+        \item per-thread \emph{local memory};
+        \item per-block \emph{shared memory};
+        \item per-grid \emph{global memory};
+        \item per-grid read-only \emph{constant memory}; and
+        \item per-grid \emph{texture memory}.
+    \end{itemize}
+  \item A lightweight barrier function
+    for synchronizing threads within a block.
 \end{enumerate}
-These abstractions provide
-support for both task parallelism and data parallelism.
+These abstractions provide support
+for both task parallelism and data parallelism.
 The strategy this suggests for programming
 is decomposing problems into coarse subproblems
 that can be solved independently,
 and then into finer pieces
-than can be solved cooperatively in parallel~\cite[\S1.1]{cudaprog2}
+than can be solved cooperatively in parallel~\cite[\S1.1]{cudaprog2}.
+
+This programming model maps to the Tesla GPU architecture.
 
 
 
