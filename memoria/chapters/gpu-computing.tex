@@ -108,7 +108,7 @@ invoking the body of the kernel for each element.
 
 \section{CUDA}
 
-CUDA is the GPU architecture and development environment
+CUDA is the GPU development environment
 introduced by the Nvidia hardware vendor.
 
 CUDA extends the C programming language
@@ -154,19 +154,30 @@ These abstractions provide support
 for both task parallelism and data parallelism.
 The strategy this suggests for programming
 is decomposing problems into coarse subproblems
-that can be solved independently,
+that can be solved independently
+(this is called \emph{task parallelism}),
 and then into finer pieces
 than can be solved cooperatively in parallel~\cite[\S1.1]{cudaprog2}.
 
-This programming model maps to the Tesla GPU architecture.
+The CUDA programming model maps to the Tesla GPU architecture.
+Nvidia GPU's architecture is built around
+a scalable array of multithreaded \emph{streaming multiprocessors}.
+When a kernel is invoked,
+blocks of the grid are distributed to available multiprocessors,
+on each of which threads within a block execute concurrently.
+As blocks terminate,
+new blocks are launched on vacated multiprocessors~\cite[\S3]{cudaprog2}.
 
+Each multiprocessor creates, manages and executes threads
+on its eight \emph{scalar processors}
+in groups of 32 threads called \emph{warps}.
+Threads within a warp execute concurrently
+but are allowed to diverge.
 
-
-
-
-
-
-
-
-
+This architecture,
+whose instructions specify
+the execution and branching behavior of single threads,
+is called \emph{single-instruction multiple-thread} (SIMT) by Nvidia.
+SIMT behavior can be ignored for the purposes of program correctness,
+but it must be taken into account when developing for peak performance.
 
