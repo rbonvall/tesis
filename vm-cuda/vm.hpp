@@ -10,7 +10,14 @@ struct particle {
 
     particle(float x, float y, float circ) :
         x(x), y(y), circ(circ), u(0), v(0) {}
+
 };
+
+std::ostream& operator <<(std::ostream& out, particle p)  {
+    out << p.x << ' ' << p.y << ' ' <<
+           p.circ << ' ' << p.u << ' ' << p.v;
+    return out;
+}
 
 
 class VortexMethod {

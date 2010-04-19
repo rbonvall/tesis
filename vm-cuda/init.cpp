@@ -2,6 +2,7 @@
 #include "lamboseen.hpp"
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <boost/foreach.hpp>
 
 int main(int argc, char *argv[]) {
@@ -36,10 +37,7 @@ int main(int argc, char *argv[]) {
                      "particles.size() = " << particles.size() <<
                      std::endl;
 
-    // dump particles
-    BOOST_FOREACH(particle p, particles) {
-        std::cout << p.x << ' ' << p.y << ' ' << p.circ << ' ' <<
-                     0.0 << ' ' << 0.0 << std::endl;
-    }
+    std::copy(particles.begin(), particles.end(),
+              std::ostream_iterator<particle>(std::cout, "\n"));
 }
 
