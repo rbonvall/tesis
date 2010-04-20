@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <iostream>
+#include <functional>
+#include <cmath>
 
 struct particle {
     float x, y; // position
@@ -19,19 +21,42 @@ std::ostream& operator <<(std::ostream& out, particle p)  {
     return out;
 }
 
+//struct squared_distance :
+//    public std::binary_function<const particle&, const particle&, float>
+//{
+//    float operator() (const particle& p, const particle& q) {
+//        float dx = p.x - q.x;
+//        float dy = p.y - q.y;
+//        return dx * dx + dy * dy;
+//    }
+//};
+
+struct squared_distance :
+    public std::binary_function<const particle&, const particle&, float>
+{
+    float operator() (const particle& p, const particle& q) {
+        float dx = p.x - q.x;
+        float dy = p.y - q.y;
+        return dx * dx + dy * dy;
+    }
+};
+
 
 class VortexMethod {
     public:
     void start(unsigned nr_iterations);
 
-    VortexMethod(std::vector<particle>& particles) :
-        particles(particles) {}
+    VortexMethod(std::vector<particle>& particles, float core_size) :
+        particles(particles), core_size(core_size) {}
 
     private:
     std::vector<particle> particles;
+    float core_size;
+    float time_step;
 
     void evaluate_velocity();
-    void convect();
+    void convect(float time_step);
+    void diffuse(float viscosity);
 };
 
 
@@ -43,3 +68,21 @@ void read_particles(std::vector<particle>& particles, std::istream& in = std::ci
         particles.push_back(particle(x, y, circ));
     }
 }
+
+
+struct biot_savart_kernel_factor :
+    public std::unary_function<float, float>
+{};
+
+struct gaussian_bskf :
+    public biot_savart_kernel_factor
+{
+    float sq_epsilon;
+
+    gaussian_bskf(float epsilon) : sq_epsilon(epsilon * epsilon) {}
+
+    float operator() (float sq_r) {
+        return (1 - exp(-sq_r/sq_epsilon)) / (2 * M_PI * sq_r);
+    }
+};
+
