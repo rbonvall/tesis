@@ -5,7 +5,7 @@ TARGETS = init particles
 
 all: $(TARGETS)
 
-init.o: init.cpp v.o
+init.o: init.cpp vm.o
 	$(CC) $(CFLAGS) -c $<
 init: init.o
 	$(CC) $< -o $@
