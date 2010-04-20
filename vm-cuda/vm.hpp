@@ -49,10 +49,8 @@ class VortexMethod {
     VortexMethod(std::vector<particle>& particles, float core_size) :
         particles(particles), core_size(core_size) {}
 
-    private:
     std::vector<particle> particles;
-    float core_size;
-    float time_step;
+    const float core_size;
 
     void evaluate_velocity();
     void convect(float time_step);
