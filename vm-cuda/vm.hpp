@@ -58,13 +58,10 @@ class VortexMethod {
 };
 
 
-
 void read_particles(std::vector<particle>& particles, std::istream& in = std::cin) {
-    while (in) {
-        float x, y, circ;
-        in >> x >> y >> circ;
+    float x, y, circ;
+    while (in >> x >> y >> circ)
         particles.push_back(particle(x, y, circ));
-    }
 }
 
 
