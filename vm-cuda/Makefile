@@ -1,19 +1,17 @@
 NVCC = nvcc
 CC = g++
 CFLAGS = -Wall -I ~/codigo/boost_1_42_0
-TARGETS = init vm particles
+TARGETS = init particles
 
 all: $(TARGETS)
 
-init.o: init.cpp vm.hpp
+init.o: init.cpp v.o
 	$(CC) $(CFLAGS) -c $<
 init: init.o
 	$(CC) $< -o $@
 
 vm.o: vm.cpp vm.hpp
 	$(CC) $(CFLAGS) -c $< 
-vm: vm.o
-	$(CC) $< -o $@
 
 particles: init
 	./$< > $@
