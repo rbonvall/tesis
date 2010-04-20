@@ -7,21 +7,6 @@
 //#include <boost/bind.hpp>
 //#include <boost/lambda/lambda.hpp>
 
-struct lamb_oseen_vortex {
-    float total_circulation; // \gamma_0
-    float viscosity;         // \nu
-
-    lamb_oseen_vortex(float circ, float visc) :
-            total_circulation(circ), viscosity(visc) {}
-
-    float operator() (float x, float y, float t) {
-        const float one_over_four_nu_t = 1/(4 * t * viscosity);
-        const float r_squared = x * x + y * y;
-        return total_circulation * one_over_four_nu_t *
-               exp(-r_squared * one_over_four_nu_t) / M_PI;
-    }
-};
-
 
 void VortexMethod::evaluate_velocity() {
     gaussian_bskf K(core_size);
