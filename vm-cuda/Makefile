@@ -1,22 +1,28 @@
 NVCC = nvcc
 CC = g++
-CFLAGS = -Wall -I ~/codigo/boost_1_42_0
-TARGETS = init particles
+INCLUDEFLAGS = -I ~/codigo/boost_1_42_0
+CXXFLAGS = -Wall $(INCLUDEFLAGS)
+LDFLAGS += -lm
+TARGETS = init particles sim
+
+SRC = init.cpp sim.cpp vm.cpp
+#MAKEDEPEND = g++ -M $(CPPFLAGS) -o $*.d $<
 
 all: $(TARGETS)
+sim: sim.o vm.o
+init: init.o vm.o
 
-init.o: init.cpp vm.o
-	$(CC) $(CFLAGS) -c $<
-init: init.o
-	$(CC) $< -o $@
+%.d: %.cpp
+	@set -e; rm -f $@; \
+	$(CC) -M $(CXXFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
 
-vm.o: vm.cpp vm.hpp
-	$(CC) $(CFLAGS) -c $< 
+-include $(SRC:.cpp=.d)
 
 particles: init
 	./$< > $@
-
 clean:
-	rm -f *.o $(TARGETS)
+	rm -f *.o $(TARGETS) *.d
 
 .PHONY: all clean
