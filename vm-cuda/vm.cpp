@@ -36,12 +36,13 @@ void VortexMethod::evaluate_velocity() {
 
         std::inner_product
 #endif
+    BOOST_FOREACH(particle& p, particles) {
+        p.u = p.v = 0;
+    }
 
     for (unsigned i = 0; i < N; ++i) {
         // fetch i-th particle and reset its velocity
         particle& p(particles[i]);
-        p.u = 0;
-        p.v = 0;
 
         // compute mutual velocity contributions
         // against each other particle q with a
@@ -57,6 +58,7 @@ void VortexMethod::evaluate_velocity() {
 
             q.u -= p.circ * -dy * kf;
             q.v -= p.circ *  dx * kf;
+
         }
     }
 }
