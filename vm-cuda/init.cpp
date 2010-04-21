@@ -1,6 +1,7 @@
 #include "vm.hpp"
 #include "lamboseen.hpp"
 #include <iostream>
+#include <iterator>
 #include <vector>
 #include <algorithm>
 #include <boost/foreach.hpp>
