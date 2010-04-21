@@ -14,8 +14,8 @@ std::ostream& operator <<(std::ostream& out, particle p)  {
 }
 
 void read_particles(std::vector<particle>& particles, std::istream& in) {
-    float x, y, circ;
-    while (in >> x >> y >> circ)
+    float x, y, circ, u, v;
+    while (in >> x >> y >> circ >> u >> v)
         particles.push_back(particle(x, y, circ));
 }
 
