@@ -7,6 +7,18 @@
 //#include <boost/bind.hpp>
 //#include <boost/lambda/lambda.hpp>
 
+std::ostream& operator <<(std::ostream& out, particle p)  {
+    out << p.x << ' ' << p.y << ' ' <<
+           p.circ << ' ' << p.u << ' ' << p.v;
+    return out;
+}
+
+void read_particles(std::vector<particle>& particles, std::istream& in) {
+    float x, y, circ;
+    while (in >> x >> y >> circ)
+        particles.push_back(particle(x, y, circ));
+}
+
 
 void VortexMethod::evaluate_velocity() {
     gaussian_bskf K(core_size);

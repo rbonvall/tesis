@@ -15,11 +15,8 @@ struct particle {
 
 };
 
-std::ostream& operator <<(std::ostream& out, particle p)  {
-    out << p.x << ' ' << p.y << ' ' <<
-           p.circ << ' ' << p.u << ' ' << p.v;
-    return out;
-}
+std::ostream& operator <<(std::ostream& out, particle p);
+void read_particles(std::vector<particle>& particles, std::istream& in = std::cin);
 
 //struct squared_distance :
 //    public std::binary_function<const particle&, const particle&, float>
@@ -58,11 +55,6 @@ class VortexMethod {
 };
 
 
-void read_particles(std::vector<particle>& particles, std::istream& in = std::cin) {
-    float x, y, circ;
-    while (in >> x >> y >> circ)
-        particles.push_back(particle(x, y, circ));
-}
 
 
 struct biot_savart_kernel_factor :
