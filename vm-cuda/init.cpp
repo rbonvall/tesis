@@ -9,6 +9,9 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
+#define EXIT_IF(cond, error_msg) \
+        do if(cond) {std::cerr << error_msg << std::endl; return 1;} while (0);
+
 int main(int argc, char *argv[]) {
     float gamma0, nu, x0, x1, y0, y1, h, t0, circulation_threshold;
 
@@ -30,16 +33,11 @@ int main(int argc, char *argv[]) {
     po::store(po::parse_command_line(argc, argv, desc), vars);
     po::notify(vars);
 
-    if (x0 >= x1 || y0 >= y1) {
-        std::cerr << "Degenerate geometry" << std::endl;
-        return 1;
-    }
     unsigned nr_cells = static_cast<unsigned>((x1 - x0) / h) *
                         static_cast<unsigned>((y1 - y0) / h);
-    if (nr_cells == 0) {
-        std::cerr << "No room for particles." << std::endl;
-        return 1;
-    }
+
+    EXIT_IF(x0 >= x1 || y0 >= y1, "Degenerate geometry.");
+    EXIT_IF(nr_cells == 0, "No room for particles.");
 
     lamb_oseen_vortex v(gamma0, nu);
     std::vector<particle> particles;
