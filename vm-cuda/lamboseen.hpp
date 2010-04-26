@@ -19,7 +19,7 @@ struct lamb_oseen_vortex {
     std::pair<float, float> velocity(float x, float y, float t) {
         float r_squared = x * x + y * y;
         float factor = total_circulation *
-                 (1 - exp(-r_squared / sqrt(4 * t * viscosity))) /
+                 (1 - exp(-r_squared / (4 * t * viscosity))) /
                  (2 * M_PI * r_squared);
         return std::make_pair<float, float>(-y * factor, x * factor);
     }
