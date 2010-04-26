@@ -12,7 +12,7 @@ c = data[:, 2]
 u = data[:, 3]
 v = data[:, 4]
 
-pylab.scatter(x, y, s=5, c=c, edgecolors='none')
+pylab.scatter(x, y, s=10, c=c, edgecolors='none')
 pylab.quiver(x, y, u, v)
 pylab.show()
 
