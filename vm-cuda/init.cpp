@@ -30,9 +30,18 @@ int main(int argc, char *argv[]) {
     po::store(po::parse_command_line(argc, argv, desc), vars);
     po::notify(vars);
 
+    if (x0 >= x1 || y0 >= y1) {
+        std::cerr << "Degenerate geometry" << std::endl;
+        return 1;
+    }
+    unsigned nr_cells = static_cast<unsigned>((x1 - x0) / h) *
+                        static_cast<unsigned>((y1 - y0) / h);
+    if (nr_cells == 0) {
+        std::cerr << "No room for particles." << std::endl;
+        return 1;
+    }
+
     lamb_oseen_vortex v(gamma0, nu);
-    unsigned int nr_cells = static_cast<int>((x1 - x0) / h) *
-                            static_cast<int>((y1 - y0) / h);
     std::vector<particle> particles;
     particles.reserve(nr_cells);
 
