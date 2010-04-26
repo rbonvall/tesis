@@ -3,14 +3,14 @@ CC = g++
 INCLUDEFLAGS = -I ~/codigo/boost_1_42_0
 CXXFLAGS = -Wall $(INCLUDEFLAGS)
 LDFLAGS += -lm -lboost_program_options
-TARGETS = init particles vel-eval
 
-SRC = init.cpp vel-eval.cpp vm.cpp
-#MAKEDEPEND = g++ -M $(CPPFLAGS) -o $*.d $<
+SRC = $(wildcard *.cpp)
+TARGETS = init analytical-vel  vel-eval
 
 all: $(TARGETS)
-vel-eval: vel-eval.o vm.o
 init: init.o vm.o
+analytical-vel: analytical-vel.o vm.o
+vel-eval: vel-eval.o vm.o
 
 %.d: %.cpp
 	@set -e; rm -f $@; \
