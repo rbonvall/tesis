@@ -9,7 +9,8 @@ int main(int argc, char *argv[]) {
     std::vector<particle> particles;
     read_particles(particles);
 
-    VortexMethod vm(particles, ops.nu);
+    float core_size = 3e-2;
+    VortexMethod vm(particles, core_size);
     vm.evaluate_velocity();
 
     std::cout << "# Particles after velocity evaluation" << std::endl;
