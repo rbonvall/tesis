@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <utility>
 
 struct lamb_oseen_vortex {
     float total_circulation;  // \gamma_0
@@ -15,11 +16,12 @@ struct lamb_oseen_vortex {
                exp(-r_squared * one_over_four_nu_t) / M_PI;
     }
 
-    float velocity(float x, float y, float t) {
+    std::pair<float, float> velocity(float x, float y, float t) {
         float r_squared = x * x + y * y;
-        return total_circulation *
-               (1 - exp(-r_squared / sqrt(4 * t * viscosity))) /
-               (2 * M_PI * sqrt(r_squared));
+        float factor = total_circulation *
+                 (1 - exp(-r_squared / sqrt(4 * t * viscosity))) /
+                 (2 * M_PI * r_squared);
+        return std::make_pair<float, float>(-y * factor, x * factor);
     }
 };
 
