@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
@@ -10,6 +11,7 @@ struct lamb_oseen_options {
         po::options_description desc;
 #       define OPTION(op, var, defval) ((op), po::value<float>(&(var))->default_value(defval))
         desc.add_options()
+            ("help", "Print a help message")
             OPTION("total-circulation", gamma0, 1.0)
             OPTION("circ-threshold", circulation_threshold, 1e-5)
             OPTION("viscosity",   nu, 5e-4)
@@ -24,5 +26,10 @@ struct lamb_oseen_options {
         po::variables_map vars;
         po::store(po::parse_command_line(argc, argv, desc), vars);
         po::notify(vars);
+
+        if (vars.count("help")) {
+            std::cout << desc << std::endl;
+            std::exit(0);
+        }
     }
 };
