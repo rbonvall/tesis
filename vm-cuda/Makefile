@@ -2,7 +2,7 @@ NVCC = nvcc
 CC = g++
 INCLUDEFLAGS = -I ~/codigo/boost_1_42_0
 CXXFLAGS = -Wall $(INCLUDEFLAGS)
-LDFLAGS += -lm
+LDFLAGS += -lm -lboost_program_options
 TARGETS = init particles sim
 
 SRC = init.cpp sim.cpp vm.cpp
