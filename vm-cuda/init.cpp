@@ -42,6 +42,18 @@ int main(int argc, char *argv[]) {
                      "particles.size() = " << particles.size() <<
                      std::endl;
 
+    std::cout << "# Lamb-Oseen vortex particle discretization" << std::endl;
+    std::cout << "# x0 = " << x0 << std::endl;
+    std::cout << "# x1 = " << x1 << std::endl;
+    std::cout << "# y0 = " << y0 << std::endl;
+    std::cout << "# y1 = " << y1 << std::endl;
+    std::cout << "# t0 = " << ops.t0 << std::endl;
+    std::cout << "# total-circulation = " << ops.gamma0 << std::endl;
+    std::cout << "# viscosity = " << ops.nu << std::endl;
+    std::cout << "# circulation-threshold = " << ops.circulation_threshold << std::endl;
+    std::cout << "# cell-size = " << h << std::endl;
+    std::cout << "# nr-particles = " << particles.size() << std::endl;
+    std::cout << std::endl;
     std::copy(particles.begin(), particles.end(),
               std::ostream_iterator<particle>(std::cout, "\n"));
 }
