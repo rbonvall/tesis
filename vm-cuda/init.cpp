@@ -6,23 +6,36 @@
 #include <algorithm>
 #include <boost/foreach.hpp>
 
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
+
 int main(int argc, char *argv[]) {
-    float gamma0 = 1.0;
-    float nu = 5e-4;
+    float gamma0, nu, x0, x1, y0, y1, h, t0, circulation_threshold;
+
+    po::options_description desc;
+#   define OPTION(op, var, defval) ((op), po::value<float>(&(var))->default_value(defval))
+    desc.add_options()
+        OPTION("total-circulation", gamma0, 1.0)
+        OPTION("viscosity",         nu,     5e-4)
+        OPTION("circ-threshold",    circulation_threshold, 1e-5)
+        OPTION("cell-size",         h,      7.8125e-3)
+        OPTION("x0", x0, -0.3)
+        OPTION("x1", x1, +0.3)
+        OPTION("y0", y0, -0.3)
+        OPTION("y1", y1, +0.3)
+        OPTION("t",  t0, 4.00)
+    ;
+#   undef OPTION
+    po::variables_map vars;
+    po::store(po::parse_command_line(argc, argv, desc), vars);
+    po::notify(vars);
+
     lamb_oseen_vortex v(gamma0, nu);
-
-
-    float x0 = -0.3, x1 = 0.3;
-    float y0 = -0.3, y1 = 0.3;
-    float h = 7.8125e-3;
     unsigned int nr_cells = static_cast<int>((x1 - x0) / h) *
                             static_cast<int>((y1 - y0) / h);
-
     std::vector<particle> particles;
     particles.reserve(nr_cells);
 
-    float t0 = 4.00;
-    float circulation_threshold = 1e-5;
     for (float x = x0 + h/2; x <= x1 - h/2; x += h)
         for (float y = y0 + h/2; y <= y1 - h/2; y += h) {
             float vort = v(x, y, t0);
