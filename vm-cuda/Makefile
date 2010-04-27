@@ -5,7 +5,7 @@ CXXFLAGS = -Wall $(INCLUDEFLAGS)
 LDFLAGS += -lm -lboost_program_options
 
 SRC = $(wildcard *.cpp)
-TARGETS = init analytical-vel  vel-eval
+TARGETS = init analytical-vel vel-eval particles
 
 all: $(TARGETS)
 init: init.o vm.o
