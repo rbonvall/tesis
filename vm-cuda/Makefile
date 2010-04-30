@@ -10,12 +10,13 @@ INCLUDEFLAGS = -I $(BOOSTHEADERS)
 LDFLAGS += -lm -lboost_program_options -lgomp
 
 SRC = $(wildcard *.cpp)
-TARGETS = init analytical-vel vel-eval particles
+TARGETS = init analytical-vel vel-eval particles integrate
 
 all: $(TARGETS)
 init: init.o vm.o
 analytical-vel: analytical-vel.o vm.o
 vel-eval: vel-eval.o vm.o
+integrate: integrate.o vm.o
 
 %.d: %.cpp
 	@set -e; rm -f $@; \
