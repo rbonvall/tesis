@@ -1,8 +1,13 @@
 NVCC = nvcc
 CC = g++
-INCLUDEFLAGS = -I ~/codigo/boost_1_42_0
 CXXFLAGS = -Wall $(INCLUDEFLAGS)
-LDFLAGS += -lm -lboost_program_options
+
+BOOST = ~/codigo/boost_1_42_0
+BOOSTHEADERS = $(BOOST)
+BOOSTLIB = $(BOOST)/stage/lib/
+
+INCLUDEFLAGS = -I $(BOOSTHEADERS)
+LDFLAGS += -lm -lboost_program_options -lgomp
 
 SRC = $(wildcard *.cpp)
 TARGETS = init analytical-vel vel-eval particles
