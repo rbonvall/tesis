@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # vim: set fileencoding=utf-8
 
 import optparse
@@ -23,9 +23,14 @@ def main():
 
     e_p = sqrt((u1 - u2)**2 + (v1 - v2)**2)
     error = sum(e_p)
-    print  "# nr_particles: {0}".format(len(e_p))
-    print u"# error: Σ √(Δu² + Δv²):"
-    print error
+
+    print  "# nr_particles: %d" % len(e_p)
+    print u"# mean error ē = Σ e_p / n:"
+    print e_p.mean()
+    print u"# error standard deviation σ = √( Σ (e_p - ē)² / (n - 1) ):"
+    print e_p.std(ddof=1)
+    print u"# maximum error M = max {e_p}:"
+    print e_p.max()
 
 
 if __name__ == '__main__':
