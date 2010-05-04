@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
     float y0 = ops.y0, y1 = ops.y1;
     float h = ops.h;
 
-    unsigned nr_cells = static_cast<unsigned>((x1 - x0) / h) *
-                        static_cast<unsigned>((y1 - y0) / h);
+    unsigned nr_cells = unsigned((x1 - x0) / h) *
+                        unsigned((y1 - y0) / h);
 
     EXIT_IF(x0 >= x1 || y0 >= y1, "Degenerate geometry.");
     EXIT_IF(nr_cells == 0, "No room for particles.");
