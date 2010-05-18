@@ -6,17 +6,24 @@ BOOST = ~/codigo/boost_1_42_0
 BOOSTHEADERS = $(BOOST)
 BOOSTLIB = $(BOOST)/stage/lib/
 
-INCLUDEFLAGS = -I $(BOOSTHEADERS)
-LDFLAGS += -lm -lboost_program_options -lgomp
+CUDA = /opt/cuda
+CUDAHEADERS = $(CUDA)/include
+
+INCLUDEFLAGS = -I $(BOOSTHEADERS) -I $(CUDAHEADERS)
+LDFLAGS += -lm -lboost_program_options -lgomp -lcudart
 
 SRC = $(wildcard *.cpp)
-TARGETS = init analytical-vel vel-eval integrate
+TARGETS = init analytical-vel vel-eval integrate integrate-gpu
 
 all: $(TARGETS)
 init: init.o vm.o
 analytical-vel: analytical-vel.o vm.o
 vel-eval: vel-eval.o vm.o
 integrate: integrate.o vm.o
+integrate-gpu: cuda-integrate.o vm.o
+
+cuda-integrate.o: cuda-integrate.cu cuda-integrate.hpp
+	$(NVCC) $< -c -o $@
 
 %.d: %.cpp
 	@set -e; rm -f $@; \
