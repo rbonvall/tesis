@@ -23,7 +23,7 @@ integrate: integrate.o vm.o
 integrate-gpu: cuda-integrate.o vm.o
 
 cuda-integrate.o: cuda-integrate.cu cuda-integrate.hpp
-	$(NVCC) $< -c -o $@
+	$(NVCC) $(INCLUDEFLAGS) $< -c -o $@
 
 %.d: %.cpp
 	@set -e; rm -f $@; \
