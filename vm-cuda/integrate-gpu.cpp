@@ -9,16 +9,20 @@
 int main(int argc, char *argv[]) {
     lamb_oseen_options ops(argc, argv);
 
-    std::vector<float> x, y, circ, u, v;
-    float xp, yp, circp, up, vp;
-    while (std::cin >> xp >> yp >> circp >> up >> vp) {
-        x.push_back(xp);
-        y.push_back(yp);
-        circ.push_back(circp);
-        // ignore up and vp
-    }
+    //std::vector<float> x, y, circ, u, v;
+    //float xp, yp, circp, up, vp;
+    //while (std::cin >> xp >> yp >> circp >> up >> vp) {
+    //    x.push_back(xp);
+    //    y.push_back(yp);
+    //    circ.push_back(circp);
+    //    // ignore up and vp
+    //}
 
-    gpu_init(x.size());
+    std::vector<particle> particles;
+    read_particles(particles);
+    float x, y, circ, u, v;
+
+    gpu_init(particles);
 
     float core_size = 2 * ops.h;
     float t = ops.t0, time_step = 0.01;
@@ -28,7 +32,7 @@ int main(int argc, char *argv[]) {
         std::cout << "# t =  " << t << std::endl;
 
         double start = omp_get_wtime();
-        vm_integrate(x, y, circ, u, v);
+        vm_integrate(time_step);
         double time = omp_get_wtime() - start;
 
         t += time_step;
