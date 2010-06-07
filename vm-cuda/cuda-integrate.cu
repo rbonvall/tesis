@@ -87,14 +87,13 @@ integrate(float4 *new_part, float4 *new_vel,
 
 void vm_integrate(float dt, unsigned nr_iterations, int p) {
     int shared_mem_size = p * sizeof(float4);
-    integrate<<<nr_particles / p, p, shared_mem_size>>>(
-        (float4 *) part_dev[current_write], (float4 *) vel_dev[current_write],
-        (float4 *) part_dev[current_read],  (float4 *) vel_dev[current_read],
-        dt, nr_particles);
+    for (int i = 0; i < nr_iterations; ++i) {
+        integrate<<<nr_particles / p, p, shared_mem_size>>>(
+            (float4 *) part_dev[current_write], (float4 *) vel_dev[current_write],
+            (float4 *) part_dev[current_read],  (float4 *) vel_dev[current_read],
+            dt, PAD(nr_particles));
 
-    // integrate(float4 *new_part, float4 *new_vel,
-    //           float4 *old_part, float4 *old_vel, float dt, int nr_particles) {
-
-    std::swap(current_read, current_write);
+        std::swap(current_read, current_write);
+    }
 }
 
