@@ -85,15 +85,6 @@ integrate(float4 *new_part, float4 *new_vel,
     new_vel[index].y = vel.y;
 }
 
-#if 0
-void vm_integrate(std::vector<float>& x, std::vector<float>& y,
-                  std::vector<float>& circ,
-                  std::vector<float>& u, std::vector<float>& v,
-                  int p) {
-    std::swap(current_read, current_write);
-}
-#endif
-
 void vm_integrate(float dt, unsigned nr_iterations, int p) {
     int shared_mem_size = p * sizeof(float4);
     integrate<<<nr_particles / p, p, shared_mem_size>>>(
