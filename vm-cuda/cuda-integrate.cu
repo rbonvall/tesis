@@ -1,6 +1,15 @@
 #include "cuda-integrate.hpp"
 #include <algorithm>
 
+#define PAD_TO 256
+
+#if defined(PAD_TO) && (PAD_TO > 0)
+#    define PAD_B(x, b) ((x) % (b) == 0 ? (x) : (b) * (1 + (x) / (b)))
+#    define PAD(x)      PAD_B((x), PAD_TO)
+#else
+#    define PAD(x)      (x)
+#endif
+
 // Two arrays for velocity and two for position
 // will be allocated on the device:
 // one of each for reading and one for writing.
