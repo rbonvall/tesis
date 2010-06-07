@@ -66,7 +66,7 @@ __device__ float2 biot_savart_law(float4 p, float4* pos, int nr_particles) {
 
 __global__ void
 integrate(float4 *new_part, float4 *new_vel,
-          float4 *old_part, float4 *old_vel, float dt, int nr_particles) {
+          float4 *old_part, float4 *old_vel, float dt, unsigned nr_particles) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
     float4 p = old_part[index]; // copy from global memory
     float2 vel = biot_savart_law(p, old_part, nr_particles);
