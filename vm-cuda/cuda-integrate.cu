@@ -26,13 +26,16 @@ void gpu_init(std::vector<particle>& particles) {
 
     // convert particles to float4s for alignment purposes
     std::vector<p4> particles4;
-    particles4.reserve(nr_particles);
+    particles4.reserve(PAD(nr_particles));
 
     for (int i = 0; i < nr_particles; ++i) {
         particles4.push_back(p4(particles[i]));
     }
+    for (int i = nr_particles; i < PAD(nr_particles); ++i) {
+        particles4.push_back(p4(0.0, 0.0, 0.0));
+    }
 
-    unsigned mem_size = sizeof(float) * 4 * nr_particles;
+    unsigned mem_size = sizeof(float) * 4 * PAD(nr_particles);
     cudaMalloc((void **) part_dev[0], mem_size);
     cudaMalloc((void **) part_dev[1], mem_size);
     cudaMalloc((void **) vel_dev[0], mem_size);
