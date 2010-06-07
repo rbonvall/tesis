@@ -68,16 +68,21 @@ __global__ void
 integrate(float4 *new_part, float4 *new_vel,
           float4 *old_part, float4 *old_vel, float dt, unsigned nr_particles) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
-    float4 p = old_part[index]; // copy from global memory
+
+    // copy particle from global memory
+    float4 p = old_part[index];
+
+    // compute velocity by applying B-S law along the tile
     float2 vel = biot_savart_law(p, old_part, nr_particles);
 
+    // convect particle and copy it to global memory
     p.x += vel.x * dt;
     p.y += vel.y * dt;
-
     new_part[index] = p;
+
+    // copy computed velocity to global memory
     new_vel[index].x = vel.x;
     new_vel[index].y = vel.y;
-
 }
 
 #if 0
@@ -101,8 +106,4 @@ void vm_integrate(float dt, unsigned nr_iterations, int p) {
 
     std::swap(current_read, current_write);
 }
-
-
-
-
 
