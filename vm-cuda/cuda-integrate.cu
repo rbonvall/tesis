@@ -2,6 +2,17 @@
 #include <algorithm>
 
 #define PAD_TO 256
+#define DEBUG 1
+#if DEBUG
+#    include "util/cuPrintf.cu"
+#    include <iostream>
+#    define MSG(s) (std::cout << s << std::endl)
+#    define DBG(cmd) (cmd)
+#else
+#    define MSG(s) (void) 0
+#    define DBG(cmd) (void) 0
+#endif
+
 
 #if defined(PAD_TO) && (PAD_TO > 0)
 #    define PAD_B(x, b) ((x) % (b) == 0 ? (x) : (b) * (1 + (x) / (b)))
