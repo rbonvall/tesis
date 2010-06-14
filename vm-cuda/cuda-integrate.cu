@@ -36,10 +36,10 @@ void gpu_init(std::vector<particle>& particles) {
     }
 
     unsigned mem_size = sizeof(float) * 4 * PAD(nr_particles);
-    cudaMalloc((void **) part_dev[0], mem_size);
-    cudaMalloc((void **) part_dev[1], mem_size);
-    cudaMalloc((void **) vel_dev[0], mem_size);
-    cudaMalloc((void **) vel_dev[1], mem_size);
+    cudaMalloc((void **) &part_dev[0], mem_size);
+    cudaMalloc((void **) &part_dev[1], mem_size);
+    cudaMalloc((void **) &vel_dev[0], mem_size);
+    cudaMalloc((void **) &vel_dev[1], mem_size);
 
     cudaMemcpy(part_dev[0], &particles[0], mem_size, cudaMemcpyHostToDevice);
     current_read = 0;
