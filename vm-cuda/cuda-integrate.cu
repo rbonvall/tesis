@@ -32,6 +32,9 @@ static unsigned current_read;
 static unsigned current_write;
 static unsigned nr_particles;
 
+__constant__ float e2;
+__constant__ float softening2;
+
 void gpu_init(std::vector<particle>& particles) {
     nr_particles = particles.size();
 
