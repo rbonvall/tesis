@@ -1,0 +1,25 @@
+Instructions for the compilation of this document
+-------------------------------------------------
+
+1. Clone the ``tesis`` repository (probably you already have).
+
+2. Clone also ``usmtesis``.
+
+3. Edit the ``url`` attribute in ``tesis/.gitmodules``
+   to point to the path where you cloned ``usmtesis``.
+
+4. Initialize usmtesis within tesis::
+
+    cd tesis
+    git submodule update --init
+
+5. Compile the images in usmtesis::
+
+    cd memoria/usmtesis/images
+    make
+
+6. Compile the document::
+
+    cd ../../
+    make
+

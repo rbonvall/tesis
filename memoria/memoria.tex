@@ -1,27 +1,30 @@
 \documentclass[12pt]{report}
-\usepackage[utf8]{inputenc}
+\usepackage[mathletters]{ucs}
+\usepackage[utf8x]{inputenc}
 \usepackage{hyperref}
 \usepackage[english,spanish]{babel}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{usmtesis/usmtesis}
 \usepackage[noBBpl]{mathpazo}
+\usepackage[small,labelfont=bf]{caption}
+\usepackage{subfigure}
+\usepackage{tikz}
+\usetikzlibrary{arrows,patterns}
 
-\newcommand{\vort}{\omega}
-\newcommand{\circulation}{\alpha}
-\newcommand{\lapl}{\Delta}
 \newcommand{\K}{\mathbb{K}}  % Biot-Savart kernel
 \newcommand{\R}{\mathbb{R}}  % set of real numbers
-\newcommand{\e}{\varepsilon} % blob radius
 \renewcommand{\vec}{\mathbf}
 \newcommand{\x}{\vec x}      % position
 \newcommand{\vel}{\vec u}    % velocity
 \DeclareMathOperator{\divergence}{div}
 \DeclareMathOperator{\curl}{curl}
+\DeclareMathOperator{\supp}{supp}
 \providecommand{\abs}[1]{\lvert#1\rvert}
 \providecommand{\norm}[1]{\lVert#1\rVert}
 
 \ingciv
+\nolistoftables
 \copyrightyear{2010}
 \submitdate{Marzo 2010}
 \convocation{Marzo}{2010}
@@ -30,14 +33,17 @@
 \author{Roberto Javier Bonvallet Carrasco}
 
 \begin{document}
-\selectlanguage{english}
 
 \profguia{Dr.~Luis Salinas}
 \profcorr{Dr.~Dunno Yet}
 
 \beforepreface
 \afterpreface
+\selectlanguage{english}
+\include{chapters/introduction}
 \include{chapters/vortex-methods}
+\include{chapters/gpu-computing}
+\include{chapters/metaprogramming}
 
 \bibliographystyle{plain}
 \bibliography{thesis}

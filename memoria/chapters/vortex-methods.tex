@@ -7,29 +7,29 @@ of incompressible viscous flows at high Reynold numbers~\cite{cottet00}.
 In this chapter, the 2-D Vortex Blob Method is introduced,
 along with its algorithmic characteristics.
 
+
 \section{The mathematics of vorticity}
 \label{sec:eqs-vort}
 
-The vorticity field \(\mathbold\vort\)
+The vorticity field \(\mathbold\omega\)
 of a fluid flow with velocity field~\(\vel = (u, v, w)\)
 is defined as:%
 \begin{equation}
-  \mathbold\vort = \nabla\times\vel.
+  \label{eq:vorticity}
+  \mathbold\omega = \curl\vel.
 \end{equation}
 
 Incompressible fluids are those for which
 the volume of fluid elements remains constant in time.
-This condition is expressed mathematically as~\(\nabla\cdot\vel = 0\).
-It follows from the definition of vorticity that also~\(\nabla\cdot\mathbold\vort = 0\).
+This condition is described mathematically as~\(∇\cdot\vel = 0\).
+It follows from the definition of vorticity that also~\(∇\cdot\mathbold\omega = 0\).
 
 The vorticity is orthogonal to the velocity on every point of the fluid.
-It follows that in a two-dimensional flow,
-the only non-zero component of the vorticity is the \(z\) component. 
+Therefore, in a two-dimensional flow,
+the only non-zero component of the vorticity is the \(z\) component.
 It this case, it is customary to consider the vorticity as a scalar field
-\(\vort = v_x - u_y\)\footnotemark,
-such that \(\mathbold\vort = \vort\hat{\vec k}\).
-
-\footnotetext{Unless otherwise stated, subindices represent partial derivatives.}
+\(ω = v_x - u_y\),
+such that \(\mathbold\omega = ω\hat{\vec k}\).
 
 The motion of an incompressible fluid
 is governed by the conservations laws of mass and momentum.
@@ -37,11 +37,13 @@ These laws are typically presented in an Eulerian reference frame,
 where the equations are developed from the local analysis of the flow
 in a fixed location in space, and are respectively:
 \begin{align}
-  \rho_t + \divergence(\rho\vel) &= 0, \\
-  \rho(\vel_t + \vel\cdot\nabla\vel) &= -\nabla p + \mu\lapl\vel;
+  ρ_t + \divergence(ρ\vel) &= 0, \\
+  ρ(\vel_t + \vel\cdot∇\vel) &= -∇p + μ\,Δ\vel;
 \end{align}
-where \(\rho\) and \(p\) are the density and the pressure fields,
+where \(ρ\) and \(p\) are the density and the pressure fields,
 and \(\mu\) is the dynamic viscosity of the fluid.
+These equations are also known respectively as
+the continuity equation and the Navier-Stokes equation.
 
 Vortex Methods, on the other hand, are based on the Lagrangian reference frame,
 which views the fluid as a collection of fluid elements
@@ -52,76 +54,351 @@ A full description of the flow is obtained by
 identifying the initial location of the fluid elements
 and the initial value of the dependent variable.
 
-Both reference frames are related by the material derivative operator \(D/Dt\),
+Both reference frames are conveniently related
+by the material derivative operator \(D/Dt\),
 defined as:
 \begin{equation}
-  \frac{D}{Dt} = \frac{\partial}{\partial t} + (\vel\cdot\nabla).
+  \frac{D}{Dt} = \frac{\partial}{\partial t} + (\vel\cdot∇),
 \end{equation}
+which accounts for the rate change of a quantity along the flow trajectories.
 
+The laws of conservation of mass and momentum in Lagrangian coordinates are:
+\begin{align}
+  \label{eq:lagrangian-mass-conservation}
+  \frac{Dρ}{Dt} &= -ρ\divergence(\vel), \\
+  \label{eq:lagrangian-momentum-conservation}
+  ρ\frac{D\vel}{Dt} &= -∇p + μ\,Δ\vel.
+\end{align}
+For an incompressible flow,
+equation~\ref{eq:lagrangian-mass-conservation} reduces to \(Dρ/Dt = 0\),
+thus density is constant for fluid elements along the flow.
+
+By taking the curl to equation~\ref{eq:lagrangian-momentum-conservation},
+the velocity-vorticity formulation of the Navier-Stokes equation is obtained:
+\begin{equation}
+  \label{eq:velocity-vorticity-navier-stokes}
+  ρ\frac{D\mathbold\omega}{Dt} = ρ\mathbold\omega\cdot∇\vel +
+                                   μ\,Δ\mathbold\omega.
+\end{equation}
+In two dimensions, the vorticity has no component along the velocity gradients,
+so the first term in the right-hand side,
+which is the rate of deforming vortex lines due to vortex stretching,
+vanishes.  In this case, the flow is completely determined by the equations:
+\begin{align}
+  \frac{Dω}{Dt} &= ν\,Δω, \\
+  \divergence\vel &= 0, \\
+  \curl\vel &= ω\hat{\vec k}, \\
+  ω(\,\cdot\,{}, 0) &= ω_0;
+\end{align}
+where \(ν = μ/ρ\) is the kinematic viscosity of the fluid.
+In this formulation, the pressure \(p\) drops out of the equations,
+so it does not need to be solved for.
+
+The velocity field can be recovered from the vorticity by solving the Poisson's equation:
+\begin{equation}
+  Δ\vel = -\curl\mathbold\omega
+\end{equation}
+with suitable boundary conditions.
+The Biot-Savart law gives the solution to this equation as an integral over \(ω\)
+in terms of the Green's function \(\mathbf G\) for the Poisson's equation:
+\begin{equation}
+  \label{eq:integral-biot-savart-law}
+  \vel(\x, t) = \int\bigl(\curl\mathbf G\bigr)(\x - \x')\,ω(\x', t)\,d\x'.
+\end{equation}
+By defining the Biot-Savart kernel~\(\K = \curl\mathbf G\),
+the Biot-Savart law can be succinctly stated as a convolution against the vorticity field:
+\begin{equation}
+  \label{eq:biot-savart-law}
+  \vel = \K * ω.
+\end{equation}
+In two dimensions, the kernel~\(\K\) is given by:
+\begin{equation}
+  \label{eq:2d-biot-savart-kernel}
+  \K(x, y) = -\frac{1}{2π \norm\x}\bigl(-y, x\bigr).
+\end{equation}
+The discussion so far assumes that the flow evolves in free space.
+For other boundary conditions, the Biot-Savart law must be modified
+to take into account the boundaries.
 
 
 \section{The 2-D Vortex Blob Method}
 \label{sec:vortex-blob-method}
 
-A two-dimensional incompressible unbounded flow
+Vortex Methods are based on the discretization of the vorticity field
+and the Lagrangian description of the governing equations.
+When solved, they determine the evolution in time of vorticity-carrying particles.
 
+The basic idea in Vortex Methods is
+to sample the computational domain into cells
+inside which an initial circulation \(α_p\) is concentrated on a single point,
+which is referred to as a particle.
 
-Vorticity-velocity formulation of the Navier-Stokes equations:
+Kelvin's theorem asserts that circulation is conserved
+along material elements moving with an inviscid fluid,
+so it is natural that,
+given a smooth approximation~\(\vel^h\) of \(\vel\),
+each cell's circulation remains unchanged when being convected
+along its trajectory~\(\x_p^h\) along~\(\vel^h\).
 
+The original formulation by Rosenhead~\cite{rosenhead31} was the Point Vortex Method,
+in which the initial vorticity was approximated as:
 \begin{equation}
-  \label{eq:vort-vel-navier-stokes}
-  \frac{\partial\omega}{\partial t} + \divergence(\vel\vort) = \lapl\vort
+  \label{eq:point-vortex-method-initial-vorticity}
+  ω_0\approx\sum_p α_p δ(\x - \x_p).
 \end{equation}
-
-\begin{align}
-  \vort(\,\cdot\,{}, 0) &= \vort_0, \\
-  \divergence\vel &= 0, \\
-  \curl\vel &= \vort, \\
-  \norm\vel &\to\vel_\infty
-\end{align}
-
-Biot-Savart law
-
-\begin{equation}
-  \label{eq:biot-savart-law}
-  \vel = \vel_\infty + \K * \vort
-\end{equation}
-where \(\K = \nabla\times G\),
-\(G\) being the Green's function for the Laplacian.
-In \(\R^2\):
-
-\begin{align}
-  G(\x) &= -(2\pi)^{-1} \log\abs{\vec x} \\
-  \K(\x) &= (2\pi\abs{x}^2)^{-1} \bigl(-x_2, x_1\bigr) 
-\end{align}
-
-\begin{equation}
-  \label{eq:initial-vorticity-approximation}
-  \vort_0\approx\vort_0^h = \sum_p\circulation_p\delta(\x - \x_p)
-\end{equation}
-
+Thus, an approximation of the vorticity at time \(t\) is given by:
 \begin{equation}
   \label{eq:point-vortex-method-approximation}
-  \vort^h(\x, t) = \sum_p\circulation_p\delta\bigl(\x - \x_p^h(t)\bigr)
+  ω^h(\x, t)=\sum_p α_p δ\bigl(\x - \x^h_p(t)\bigr),
 \end{equation}
+and the velocity~\(\vel^h\) is restored from~\(ω^h\)
+by some approximation of the Biot-Savart law.
+Because of the singularity of the kernel~\(\K\),
+this can lead to arbitrarily large values of~\(\vel^h\)
+when particles approach each other.
 
-
+The Vortex Blob Method, proposed by Chorin,
+overcomes this difficulty by introducing
+a mollification~\(\K_ε\) of the Biot-Savart kernel.
+First, a smooth cutoff function~\(ζ\) is chosen
+such that~\(\int ζ(\x)\,d\x = 1\),
+which is scaled with a parameter~\(ε\)
+to obtain the function~\(ζ_ε\)
+that represents a mollified particle:
+\begin{equation}
+  ζ_ε(\x) = ε^{-2} ζ(\x/ε).
+\end{equation}
+The mollified kernel~\(\K_ε\) is then set as \(\K_ε = \K * ζ_ε\),
+and then the method is formulated as the numerical integration
+of the system of ordinary differential equations:
 \begin{align}
-  \label{eq:vortex-blob-ode}
-  \frac{d\x_p^h}{dt} &= \vel(\vec x_p^t, t) \\
-  \x_p^h(0) &= \x_p \\
-  \vel &= \K_\e * \vort
+  \label{eq:vortex-blob-convection}
+  \frac{d\x_p^h}{dt}  &= \vel^h(\vec x_p^t, t) \\
+  \label{eq:vortex-blob-diffusion}
+  \frac{dω^h}{dt} &= ν\,Δω^h
 \end{align}
+with \(\vel^h = \K_ε * ω^h\).
 
+The vorticity field~\(ω_ε^h\) is approximated as the sum of the
+circulation contributions of all mollified particles:
 \begin{equation}
-  \zeta_\e(\x) = \e^{-2}\zeta(\x/\e)
+  ω_ε^h = \sum_p α_p ζ_ε(\x - \x_p^h),
+\end{equation}
+which gives the velocity formula:
+\begin{equation}
+  \label{eq:discrete-biot-savart-law}
+  \vel^h = \sum_p α_p \K_ε(\x - \x_p^h).
 \end{equation}
 
-\begin{equation}
-  \K_\e = \K * \zeta_\e
-\end{equation}
 
+\section{Algorithmic features of Vortex Methods}
+The implementation of a Vortex Blob Method requires several design decisions
+which condition its efficiency and stability,
+and its suitability for different kinds of flows.
+
+\begin{figure}
+  \centering
+  \tikzstyle{vm-block}=[draw]
+  \tikzstyle{vm-block-o}=[draw,fill=blue!15]
+  \begin{tikzpicture}[node distance=5ex]
+    \node[vm-block]   (disc)                 {Discretization};
+    \node[vm-block]   (vel)  [below of=disc] {Velocity evaluation};
+    \node[vm-block]   (conv) [below of=vel]  {Convection};
+    \node[vm-block]   (diff) [below of=conv] {Diffusion};
+    \node[vm-block-o] (bc)   [below of=diff] {Satisfaction of BCs};
+    \node[vm-block-o] (spa)  [below of=bc]   {Spatial adaption};
+    \node[vm-block-o] (fs)   [right of=vel, node distance=15em] {Fast summation};
+    \node[vm-block-o] (mf)   [right of=bc,  node distance=15em] {Measurement of forces};
+    \draw[->] (disc) to (vel);
+    \draw[->] (vel)  to (conv);
+    \draw[->] (conv) to (diff);
+    \draw[->] (diff) to (bc);
+    \draw[->] (bc)   to (spa);
+    \draw[->] (fs)   to (vel);
+    \draw[->] (bc)   to (mf);
+    \draw[->] (spa.west) to [out=180,in=180] (vel.west);
+  \end{tikzpicture}
+  \label{fig:vm-blocks}
+  \caption[Builiding blocks of a viscous Vortex Method]{
+    Basic building blocks of a viscous Vortex Method implementation,
+    as described in~\cite[\S1.2]{barba04}. Shaded blocks indicate components
+    that are not mandatory, but are generally present in modern applications
+    of vortex methods.}
+\end{figure}
+
+The basic stages of a Vortex Method are those shown in figure~\ref{fig:vm-blocks}.
+Each of these stages can be implemented in several different ways.
+The discussion below presents some of the alternatives that are possible,
+but it is by no means comprehensive.
+
+
+\subsection{Discretization}
+\label{ssec:discretization}
+
+During the discretization stage,
+the position and circulation of the particles is set
+in order to represent accurately the initial vorticity field.
+This includes the choice of the cutoff function~\(ζ\).
+
+Some classes of methods for particle initialization
+described in~\cite[\S2.4]{cottet00} are:
+\begin{enumerate}
+  \item splitting~\(\supp ω_0\) in regular cells
+    and initializing a particle at the center of each cell;
+  \item splitting~\(\supp ω_0\) in regular cells,
+    and for each of them initialize a particle in a random position inside it.
+  \item initializing particles randomly in~\(\supp ω_0\);
+\end{enumerate}
+If the initial circulation~\(α_p\) is unknown,
+it can be set to~\(α_p = ω_0(\x_p) v_p\),
+where \(v_p\) is the volume of the cell
+(or an average volume, in the case of random initialization).
+Each initialization scheme has different quadrature properties
+that determine its accuracy.
+
+Cutoff functions can be constructed in several different ways,
+some of which are described in~\cite[\S2.3]{cottet00}.
+A customary choice is a Gaussian cutoff:
 \begin{equation}
-  \vort_\e^h = \sum_p\zeta_\e(\x - \x_p^h)
+  ζ_{σk}(\x) =
+    \frac{1}{kπσ^2}
+    \exp\left\{\frac{-\norm{\x}^2}{kσ^2}\right\},
 \end{equation}
+which yields an analytical expression for the velocity kernel:
+\begin{equation}
+  \K_{\sigma k}(\x) =
+    \frac{1}{kπ \norm{\x}^2}
+    \left(
+      1 - \exp\left\{
+        \frac{-\norm{\x}^2}{kσ^2}
+      \right\}
+    \right)
+    (-y, x).
+\end{equation}
+Other choices are possible,
+and their accuracy is measured by their moment properties.
+A cutoff is said to be of order \(r\) if its \(r\)-th moment is finite
+and its moments less than the $r$-th are zero.
+Non-negative cutoffs cannot be of order more than 2.
+
+
+\subsection{Velocity evaluation}
+\label{ssec:vel-eval}
+
+The evaluation of the velocity is performed by means of
+the discrete Biot-Savart law.
+The na\"{\i}ve algorithm is
+to compute the~\(N\)-term sum in equation~\ref{eq:discrete-biot-savart-law}
+for each of the~\(N\) particles,
+so velocity evaluation requires~\(O(N^2)\) operations.
+Fast summation methods allow to reduce the operation count
+by employing a hierarchical domain decomposition and
+controlled approximations for the interaction of distant particles.
+Two well-known fast summation methods are
+Barnes-Hut's~\cite{barnes86} and
+the Fast Multipole Method~\cite{greengard87},
+which require respectively~\(O(N\log N)\) and~\(O(N)\) operations.
+
+
+\subsection{Convection}
+\label{ssec:convection}
+
+The convection stage consists in moving the particles along the flow.
+by integrating equation~\ref{eq:vortex-blob-convection}
+with a time-stepping algorithm.
+The methods of Runge-Kutta and Adams-Bashforth are tipically used.
+As opposed to a simple Euler integrator,
+these methods require several velocity evaluations per iteration.
+
+
+\subsection{Diffusion}
+\label{ssec:diffusion}
+
+%The treatment of diffusion amounts to integrating equation
+Handling the effects of diffusion,
+described by equation~\ref{eq:vortex-blob-diffusion},
+is complicated in a pure Lagrangian frame.
+Several schemes have been proposed.
+\cite[\S5]{cottet00}
+
+In viscous splitting methods,
+convection and diffusion are solved separatedly
+in substeps within an iteration.
+First, the fluid elements are advanced,
+and then the difussion acts at the new locations
+to modify the vorticity field of the flow~\cite[\S5.1]{cottet00}.
+
+The Random Walk method
+simulates the diffusion as a Brownian-like motion of the particles.
+This relies on the probabilistic interpretation of
+the Green's function integral solution to equation~\ref{eq:vortex-blob-diffusion}.
+Particle positions are updated as~\(\x_p^{(n + 1)} = \x_p^{(n)} + \mathbold\xi_p^{(n)}\),
+where the last term is drawn with a Gaussian probability distribution
+whose variance is a function of the viscosity of the fluid and the timestep.
+The circulation of the particles is not updated.
+
+The Particle Strength Exchange method
+simulates the diffusion as an exchange of circulation
+between particles~\cite{cko00}.
+The diffusion operator is replaced by an integral one,
+which is discretized as a sum akin to the velocity evaluation formula:
+\begin{equation}
+  \frac{Dω_p}{Dt} =
+    νε^{-2}\sum_q v_q [ω_q - ω_p] η_ε(\x_p - \x_q),
+\end{equation}
+with a proper choice of a spherically symmetric function~\(η\).
+As opposed to the Random Walk method,
+the circulation of the particles is updated instead of their positions.
+
+
+\subsection{Satisfaction of boundary conditions}
+\label{ssec:bcs}
+
+Boundary conditions other than free-space flow must be enforced explicitly.
+
+A periodic boundary condition is handled
+by replacing the Biot-Savart kernel
+with its periodic version~\(\K_L=\sum_{i,j}\K\bigl(\x + (i, j)L\bigr)\)~%
+\cite[\S2.5]{cottet00}.
+
+Solid bodies impose the no-penetration (or no-flow-through) condition,
+namely that, at the boundary,
+the normal velocities of the flow and the body are equal.
+For the case of viscous flows, there is also a no-slip condition,
+imposing that the tangential velocity also vanishes at the boundary;
+this is, the fluid sticks to the wall.
+
+The no-penetration condition can be expressed as an aditional term
+in the velocity evaluation in terms of the potential function
+of the solenoidal component of the velocity~\cite[\S4.2]{cottet00}.
+There are many techniques used to satisfy this condition
+for different kinds of problems.
+In panel methods, a more general technique,
+the boundary is discretized
+with a set of quadrilateral or triangular elements
+on which singularities are distributed,
+whose circulations need to be solved for
+in order to calculate their effects on all the particles~\cite[\S2.4]{rama09}.
+
+The standard way to enforce the no-slip condition
+is related to the physical phenomenon of vorticity generation at the boundary.
+Several schemes have been proposed
+to simulate the creation of vorticity~\cite[\S6]{cottet00}.
+For example, a vortex sheet can be introduced at the surface
+after the enforcement of no-penetration in order to cancel the slip,
+as proposed by Chorin~\cite[\S6.3.2]{cottet00}.
+
+
+\subsection{Spatial adaption}
+\label{ssec:sa}
+
+Spatial adaption methods resample the vorticity field discretization
+by modifying the particle set.
+Particles can be created, eliminated, merged, split,
+and remeshed into regular grids,
+and their core sizes~\(ε\) can be made to be variable.
+
+These techniques will not be taken into account in this work.
+
+
 
