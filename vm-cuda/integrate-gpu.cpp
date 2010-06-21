@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     float x, y, circ, u, v;
 
     gpu_init(particles);
+    std::cout << "Particles copied to GPU" << std::endl;
 
     float core_size = 2 * ops.h;
     float t = ops.t0, time_step = 0.01;

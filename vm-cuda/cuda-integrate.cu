@@ -54,8 +54,10 @@ void gpu_init(std::vector<particle>& particles) {
     cudaMalloc((void **) &part_dev[1], mem_size);
     cudaMalloc((void **) &vel_dev[0], mem_size);
     cudaMalloc((void **) &vel_dev[1], mem_size);
+    MSG("GPU arrays allocated (" << mem_size << " bytes)");
 
     cudaMemcpy(part_dev[0], &particles[0], mem_size, cudaMemcpyHostToDevice);
+    MSG("Particle array copied to GPU");
     current_read = 0;
     current_write = 1;
 }
@@ -82,6 +84,7 @@ __global__ void
 integrate(float4 *new_part, float4 *new_vel,
           float4 *old_part, float4 *old_vel, float dt, unsigned nr_particles) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
+    DBG(cuPrintf("Index: %u\n", index));
 
     // copy particle from global memory
     float4 p = old_part[index];
@@ -101,13 +104,20 @@ integrate(float4 *new_part, float4 *new_vel,
 
 void vm_integrate(float dt, unsigned nr_iterations, int p) {
     int shared_mem_size = p * sizeof(float4);
+    size_t grid_size = PAD(nr_particles) / p;
+
+    MSG(nr_particles << " " << PAD(nr_particles) << " "  << p);
+    DBG(cudaPrintfInit());
     for (int i = 0; i < nr_iterations; ++i) {
-        integrate<<<nr_particles / p, p, shared_mem_size>>>(
+        MSG("integrate<<<" << grid_size << ", " << p << ", " << shared_mem_size << ">>>");
+        integrate<<<grid_size, p, shared_mem_size>>>(
             (float4 *) part_dev[current_write], (float4 *) vel_dev[current_write],
             (float4 *) part_dev[current_read],  (float4 *) vel_dev[current_read],
             dt, PAD(nr_particles));
 
         std::swap(current_read, current_write);
     }
+    DBG(cudaPrintfDisplay());
+    DBG(cudaPrintfEnd());
 }
 
