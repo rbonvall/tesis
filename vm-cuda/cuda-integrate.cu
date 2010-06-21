@@ -166,7 +166,7 @@ integrate(float4 *new_part, float4 *new_vel,
 }
 
 void vm_integrate(float dt, unsigned nr_iterations, int p) {
-    int shared_mem_size = p * sizeof(float4);
+    size_t shared_mem_size = p * sizeof(float4);
     size_t grid_size = PAD(nr_particles) / p;
 
     MSG(nr_particles << " " << PAD(nr_particles) << " "  << p);
