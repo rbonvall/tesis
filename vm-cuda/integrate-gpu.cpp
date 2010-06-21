@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
         std::cout << "# t =  " << t << std::endl;
 
         double start = omp_get_wtime();
-        vm_integrate(time_step);
+        vm_integrate(time_step, 1, 2);
         double time = omp_get_wtime() - start;
 
         t += time_step;
