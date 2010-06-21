@@ -1,7 +1,6 @@
 #include "cuda-integrate.hpp"
 #include <algorithm>
 
-#define PAD_TO 256
 #define DEBUG 1
 #if DEBUG
 #    include "util/cuPrintf.cu"
@@ -13,6 +12,7 @@
 #    define DBG(cmd) (void) 0
 #endif
 
+#define PAD_TO 4
 
 #if defined(PAD_TO) && (PAD_TO > 0)
 #    define PAD_B(x, b) ((x) % (b) == 0 ? (x) : (b) * (1 + (x) / (b)))
