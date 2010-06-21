@@ -69,13 +69,76 @@ void gpu_finalize() {
     cudaFree(part_dev[1]);
 }
 
+__device__ float gaussian_kernel_factor(float r2) {
+    return (1 - expf(-r2/e2)) / (2 * M_PI * r2);
+}
 
-__device__ float2 biot_savart_law(float4 p, float4* pos, int nr_particles) {
-    extern __shared__ float4 shared_pos[];
 
-    // TODO: implement B-S law
-    float2 u;
-    u.x = 1; u.y = 1;
+__device__ float2 vortex_interaction(float2 du, float4 self, float4 other) {
+
+    float2 dif;
+    dif.x = self.x - other.x;
+    dif.y = self.y - other.y;
+
+    float r2 = (dif.x * dif.x) + (dif.y * dif.y) + softening2;
+    float kf = gaussian_kernel_factor(r2);
+    du.x += -other.y * kf;
+    du.y +=  other.x * kf;
+
+    return du;
+}
+
+
+__device__ float2 tile_computation(float4 part, float2 du) {
+    extern __shared__ float4 shared_part[];
+
+    // Explanation for this on Nvidia's n-body program.
+#ifdef _Win64
+    unsigned long long i = 0;
+#else
+    unsigned long i = 0;
+#endif
+
+    for (unsigned int counter = 0; counter < blockDim.x; ) {
+        du = vortex_interaction(du, part, shared_part[i++]);
+        ++counter;
+        // TODO: unroll loop
+    }
+
+    return du;
+}
+
+
+// divless mod
+#define WRAP(x, m) ((x) < (m) ? (x) : (x) - (m))
+
+__device__ float2 biot_savart_law(float4 part, float4* parts, unsigned nr_particles) {
+    extern __shared__ float4 shared_part[];
+
+    const unsigned p = blockDim.x;
+    const unsigned b = blockIdx.x;
+    const unsigned t = threadIdx.x;
+    const unsigned nr_blocks = gridDim.x;
+
+    int current_tile = b;
+    float2 u = {0.0f, 0.0f};
+#if 0
+    for (int tile_count = 0; tile_count < nr_blocks; ++tile_count) {
+
+        // fetch particle from global memory
+        shared_part[t] = parts[p * b + t];
+        __syncthreads();
+
+        float2 du = {0.0f, 0.0f};
+        du = tile_computation(part, du);
+        u.x += du.x;
+        u.y += du.y;
+        __syncthreads();
+
+        current_tile = WRAP(current_tile + 1, nr_blocks);
+    }
+#endif
+
     return u;
 }
 
