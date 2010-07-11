@@ -23,11 +23,8 @@ int main(int argc, char *argv[]) {
         std::cout << "# t =  " << t << std::endl;
 
         double start = omp_get_wtime();
-#if defined(CUDA_INTEGRATION)
-#else
         vm.evaluate_velocity();
         vm.convect(time_step);
-#endif
         double time = omp_get_wtime() - start;
 
         std::cout << "# iteration timing: " << time << std::endl;

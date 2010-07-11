@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     float x, y, circ, u, v;
 
     gpu_init(particles);
+    std::cout << "Particles copied to GPU" << std::endl;
 
     float core_size = 2 * ops.h;
     float t = ops.t0, time_step = 0.01;
@@ -32,7 +33,7 @@ int main(int argc, char *argv[]) {
         std::cout << "# t =  " << t << std::endl;
 
         double start = omp_get_wtime();
-        vm_integrate(time_step);
+        vm_integrate(time_step, 1, 2);
         double time = omp_get_wtime() - start;
 
         t += time_step;
