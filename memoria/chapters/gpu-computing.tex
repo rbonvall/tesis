@@ -28,7 +28,7 @@ multithreaded, manycore processors
 specialized in floating point calculations.
 
 The GPU delivers high throughput not by accelerating individual operations
-(any of which has greater latency than on the CPU),
+(which are slower than on the CPU),
 but by means of executing many threads in parallel.
 It achieves this by devoting more transistors to data processing
 rather than data caching and flow control~\cite[\S1]{cudaprog2},
@@ -79,8 +79,9 @@ as illustrated by figure~\ref{fig:transistors}.
 
 This arrangement is what makes the GPU
 well-suited for computations
-for which the data is distributed among processors
-for the same program to be executed on them in parallel.
+for which the data is distributed among processing cores
+for each of them to execute the same instructions
+on a different subset of it.
 This is called \emph{data parallelism}.
 Data-parallel computations have lower requirements
 for sophisticated flow control
