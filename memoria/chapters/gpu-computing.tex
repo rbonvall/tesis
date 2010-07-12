@@ -61,11 +61,11 @@ as illustrated by figure~\ref{fig:transistors}.
       \node[trans-name] at (0, 1.5) {DRAM};
       \foreach \x in {0.5, 1, ..., 5.5}
         \foreach \y in {2.5, 3, ..., 6}
-          \draw[alu] (\x, \y) rectangle +(0.5, -0.5);
+          \draw[alu] (\x, \y) rectangle +(0.5, -0.46);
       \foreach \y in {2.5, 3, ..., 6}
-        \draw[ctrl] (0, \y) rectangle +(0.5, -0.25);
-      \foreach \y in {2.25, 2.75, ..., 6}
-        \draw[data] (0, \y) rectangle +(0.5, -0.25);
+        \draw[ctrl] (0, \y) rectangle +(0.5, -0.23);
+      \foreach \y in {2.27, 2.77, ..., 6}
+        \draw[data] (0, \y) rectangle +(0.5, -0.23);
     \end{tikzpicture}
   }
   \label{fig:transistors}
