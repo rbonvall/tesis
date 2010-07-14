@@ -232,7 +232,7 @@ by using C functions provided by the CUDA runtime API.
 
 Shared memory is usable from all threads of a block,
 and has the same lifetime as the block.
-Shared memory two orders of magnitude faster than global memory,
+Shared memory is two orders of magnitude faster than global memory,
 so it is useful as a programmer-managed L1-like cache.
 Threads within the block can cooperate among themselves
 by sharing data on through it and synchronizing their execution
