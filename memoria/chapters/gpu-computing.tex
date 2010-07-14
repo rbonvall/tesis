@@ -1,9 +1,9 @@
 \chapter{GPU computing}
 \label{ch:gpu-computing}
 
-(This chapter's bibliography:
-\cite{cudaprog2} \cite{owens08} \cite{jansen07} \cite{lejdfors08}%
-)
+%(This chapter's bibliography:
+%\cite{cudaprog2} \cite{owens08} \cite{jansen07} \cite{lejdfors08}%
+%)
 
 Graphics processors (GPUs) have evolved in the last decade
 from being fixed-function specialized hardware units
@@ -17,7 +17,7 @@ Massive parallelism,
 hardware constraints,
 data access latency and
 the impact of low level minutiae on performance
-impose a different mindset for implementing an algorithm.
+impose a different mindset for implementing any algorithm.
 This chapter introduces the concepts
 about GPU computing that are relevant to this thesis.
 
@@ -81,29 +81,56 @@ This arrangement is what makes the GPU
 well-suited for computations
 for which the data is distributed among processing cores
 for each of them to execute the same instructions
-on a different subset of it.
+on a different subset of the data,
+that is distributed among processing cores.
 This is called \emph{data parallelism}.
 Data-parallel computations have lower requirements
 for sophisticated flow control
 and can hide the memory access latency with calculations
 instead of caches~\cite[\S1.2]{cudaprog2}.
 
-\section{Parallel computing and the streaming paradigm}
+GPUs were originally designed to accelerate graphics applications,
+composed of several data-parallel stages arranged as a pipeline.
+Current generation GPUs are built around a \emph{unified shader} architecture,
+in which all multiprocessors are available for all the stages of the pipeline.
+This allows to exploit \emph{task parallelism},
+the execution of several stages of an algorithm in parallel:
+multiprocessors are allocated for each task as they are needed~\cite[\S{}II]{owens08}.
 
+By having support for both task parallelism and data parallelism,
+problems can be decomposed into coarse independent subproblems
+and then into finer pieces
+than can be solved cooperatively in parallel~\cite[\S1.1]{cudaprog2}.
 
+\section{Streaming paradigm}
 
-%The programming model of the GPU is classified as single-program multiple-data (SPMD):
-%the same instructions are executed in parallel on different data sets.
-%
-%The two main abstractions of the streaming paradigm are streams and kernels.
-%
-%A \emph{stream} is a collection of data which can be operated on in parallel.
-%
-%\emph{Kernels} are special functions which operate on streams.
-%Calling a kernel on a stream
-%performs an implicit loop over the elements of the stream,
-%invoking the body of the kernel for each element.
+The architecture of graphic hardware
+is akin to the SIMD class of parallel computers
+(typically represented by vector processors),
+in that a single instruction controls multiple processing elements~\cite[\S3.1]{cudaprog2}.
+However, there are some differences that the SIMD classification does not reflect.
 
+Modern GPUs execute small programs that operate on local registers rather than on memory.
+These programs are developed to load and store their data at the thread-level.
+Threads are mapped to processor cores, and execute independently
+with their own instruction address and register state.
+
+This programming model captures computational locality not present in the SIMD model.
+The abstraction that arises is called \emph{stream programming}.
+The streaming paradigm models parallel computations through the use of streams and kernels.
+A \emph{stream} is a collection of records requiring similar computation,
+while \emph{kernels} are functions executed on each element of a stream~\cite[\S2.1]{buck04}.
+GPU programming consists mainly in defining kernels
+and managing the data to be operated on.
+
+The applications that can benefit from stream processing
+are those that exhibit high \emph{arithmetic intensity},
+the ratio of computations to memory accesses.
+For best performance,
+GPU applications have to optimize their memory usage
+(data transfers and access patterns)
+to achieve maximum memory bandwidth,
+while maximizing parallel computations~\cite[\S5.5]{cudaprog2}.
 
 \section{CUDA}
 
@@ -140,11 +167,11 @@ and can synchronize.
 
 Each thread in a block
 is assigned a unique index
-called \verb+threadIdx+.
+called \texttt{threadIdx}.
 The size of the block
-is called \verb+blockDim+.
+is called \texttt{blockDim}.
 Both are variables that are accessible
-from all the threads.
+by all the threads.
 
 Blocks are organized into a \emph{grid}.
 Blocks within a grid
@@ -153,7 +180,7 @@ so they can be scheduled to idle multiprocessors
 in any order at any time.
 Each block is assigned a unique index
 called \verb+blockIdx+,
-that is also accessible from all the threads.
+that is also accessible by all the threads.
 
 All threads execute the same kernel code,
 but have a different value of \verb+threadIdx+ and \verb+blockIdx+,
@@ -178,7 +205,9 @@ by inserting an expression of the form \texttt{<<<gridDim, blockDim>>>}
 between the function name and its argument list.
 
 For example,
-two arrays of size 8192 can be added using any of the following configurations:
+two arrays of size 8192 can be added
+by the kernel defined above
+by using any of the following configurations:
 \begin{verbatim}
 vector_add<<<16, 512>>>(a, b, c);
 vector_add<<<32, 256>>>(a, b, c);
@@ -203,56 +232,22 @@ by using C functions provided by the CUDA runtime API.
 
 Shared memory is usable from all threads of a block,
 and has the same lifetime as the block.
-Access to shared memory is much faster than to global memory,
+Shared memory is much faster than global memory,
 so it is useful as a programmer-managed L1-like cache.
 Threads within the block can cooperate among themselves
 by sharing data on through it and synchronizing their execution
 to coordinate memory accesses.
 
-\section{Application workflow}
-\label{sec:app-workflow}
+\subsection{Application workflow}
+\label{sub:app-workflow}
 
 The basic workflow of a simple CUDA application is the following:
 \begin{itemize}
   \item allocate arrays on the device global memory;
-  \item copy data from the host to the allocated arrays;
-  \item launch a kernel to operate on the data;
+  \item transfer data from the host to the allocated arrays;
+  \item launch a kernel;
   \item once the kernel has finished,
-    copy the result data back to the host;
+    trasfer the result data back to the host;
   \item free the allocated memory.
 \end{itemize}
-
-
-
-
-These abstractions provide support
-for both task parallelism and data parallelism.
-The strategy this suggests for programming
-is decomposing problems into coarse subproblems
-that can be solved independently
-(this is called \emph{task parallelism}),
-and then into finer pieces
-than can be solved cooperatively in parallel~\cite[\S1.1]{cudaprog2}.
-
-The CUDA programming model maps to the Tesla GPU architecture.
-Nvidia GPU's architecture is built around
-a scalable array of multithreaded \emph{streaming multiprocessors}.
-When a kernel is invoked,
-blocks of the grid are distributed to available multiprocessors,
-where threads within a block execute concurrently.
-As blocks terminate,
-new blocks are assigned to vacated multiprocessors~\cite[\S3]{cudaprog2}.
-
-Each multiprocessor creates, manages and executes threads
-on its eight \emph{scalar processors}
-in groups of 32 threads called \emph{warps}.
-Threads within a warp execute concurrently
-but are allowed to diverge.
-
-This architecture,
-whose instructions specify
-the execution and branching behavior of single threads,
-is called \emph{single-instruction multiple-thread} (SIMT) by Nvidia.
-SIMT behavior can be ignored for the purposes of program correctness,
-but it must be taken into account when developing for peak performance.
 
