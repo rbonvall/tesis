@@ -2,12 +2,21 @@ NVCC = nvcc
 CC = g++
 CXXFLAGS = -Wall $(INCLUDEFLAGS)
 
-BOOST = ~/codigo/boost_1_42_0
-BOOSTHEADERS = $(BOOST)
-BOOSTLIB = $(BOOST)/stage/lib/
+ifeq ($(shell hostname),gp01)
+    BOOST = ~/codigo/boost_1_42_0
+    BOOSTHEADERS = $(BOOST)
+    BOOSTLIB = $(BOOST)/stage/lib/
 
-CUDA = /opt/cuda
-CUDAHEADERS = $(CUDA)/include
+    CUDA = /opt/cuda
+    CUDAHEADERS = $(CUDA)/include
+else
+    CUDA = /usr/local/cuda
+    CUDAHEADERS = $(CUDA)/include
+    BOOSTHEADERS = /usr/include/boost
+    LDFLAGS += -L$(CUDA)/lib64 -L$(CUDA)/lib
+    #LD_LIBRARY_PATH := /usr/local/cuda/lib64:/usr/local/cuda/lib:$(LD_LIBRARY_PATH)
+    #LIBRARY_PATH = $(LD_LIBRARY_PATH)
+endif
 
 INCLUDEFLAGS = -I $(BOOSTHEADERS) -I $(CUDAHEADERS)
 LDFLAGS += -lm -lboost_program_options -lgomp -lcudart
