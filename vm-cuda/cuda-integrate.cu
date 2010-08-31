@@ -117,7 +117,7 @@ __device__ float2 biot_savart_law(float4 part, float4* parts, unsigned nr_partic
 
     const unsigned p = blockDim.x;
     const unsigned b = blockIdx.x;
-    const unsigned t = threadIdx.x;
+    const unsigned i = threadIdx.x;
     const unsigned nr_blocks = gridDim.x;
 
     int current_tile = b;
@@ -126,7 +126,7 @@ __device__ float2 biot_savart_law(float4 part, float4* parts, unsigned nr_partic
     for (int tile_count = 0; tile_count < nr_blocks; ++tile_count) {
 
         // fetch particle from global memory
-        shared_part[t] = parts[p * b + t];
+        shared_part[i] = parts[p * b + i];
         __syncthreads();
 
         float2 du = {0.0f, 0.0f};
