@@ -4,6 +4,7 @@
 #include <iostream>
 #include <functional>
 #include <cmath>
+#include <limits>
 
 struct particle {
     float x, y; // position
@@ -69,7 +70,8 @@ struct gaussian_bskf :
     gaussian_bskf(float epsilon) : sq_epsilon(epsilon * epsilon) {}
 
     float operator() (float sq_r) {
-        return (1 - exp(-sq_r/sq_epsilon)) / (2 * M_PI * sq_r);
+        return (1 - exp(-sq_r/sq_epsilon)) /
+               (2 * M_PI * (sq_r + std::numeric_limits<float>::epsilon()));
     }
 };
 
