@@ -26,16 +26,6 @@ void VortexMethod::evaluate_velocity() {
     unsigned N = particles.size();
     std::vector<float> bs_kernel_factors(N);
 
-#if 0
-    BOOST_FOREACH(particle& p, particles) {
-        // Compute the kernel factor K(xp - xq)
-        // against all other particles q
-        std::transform(particles.begin(), particles.end(),
-                       bs_kernel_factors.begin(),
-                       boost::bind(K, boost::bind(squared_distance(), p, ::_1)));
-
-        std::inner_product
-#endif
     BOOST_FOREACH(particle& p, particles) {
         p.u = p.v = 0;
     }
