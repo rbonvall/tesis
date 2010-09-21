@@ -46,7 +46,7 @@ void gpu_init(std::vector<particle>& particles) {
         particles4.push_back(p4(particles[i]));
     }
     for (int i = nr_particles; i < PAD(nr_particles); ++i) {
-        particles4.push_back(p4(0.0, 0.0, 0.0));
+        particles4.push_back(p4(0.0f, 0.0f, 0.0f));
     }
 
     unsigned mem_size = sizeof(float) * 4 * PAD(nr_particles);
@@ -70,7 +70,7 @@ void gpu_finalize() {
 }
 
 __device__ float gaussian_kernel_factor(float r2) {
-    return (1 - expf(-r2/e2)) / (2 * M_PI * r2);
+    return (1 - expf(-r2/e2)) / (2 * float(M_PI) * r2);
 }
 
 
