@@ -12,6 +12,7 @@ ifeq ($(shell hostname),gp01)
 else
     CUDA = /usr/local/cuda
     CUDAHEADERS = $(CUDA)/include
+    NVCCFLAGS = -deviceemu
     BOOSTHEADERS = /usr/include/boost
     LDFLAGS += -L$(CUDA)/lib64 -L$(CUDA)/lib
     #LD_LIBRARY_PATH := /usr/local/cuda/lib64:/usr/local/cuda/lib:$(LD_LIBRARY_PATH)
@@ -32,7 +33,7 @@ integrate: integrate.o vm.o
 integrate-gpu: cuda-integrate.o vm.o
 
 cuda-integrate.o: cuda-integrate.cu cuda-integrate.hpp
-	$(NVCC) $(INCLUDEFLAGS) $< -c -o $@
+	$(NVCC) $(NVCCFLAGS) $(INCLUDEFLAGS) $< -c -o $@
 
 %.d: %.cpp
 	@set -e; rm -f $@; \
