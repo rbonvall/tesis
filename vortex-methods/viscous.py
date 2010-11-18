@@ -71,7 +71,7 @@ def eval_circulation_change(x, y, circ, nu, e2):
         r2 = dx**2 + dy**2
         eta = diffusion_kernel(r2, e2)
         circ_diff = circ - circ_p
-        circ[p] = (nu * (e2/4) / e2) * dot(circ_diff, eta)
+        dcirc[p] = (nu * (e2/4) / e2) * dot(circ_diff, eta)
 
         # particle volume has been approximated
         # as v_p = h² ≈ ε²/4
