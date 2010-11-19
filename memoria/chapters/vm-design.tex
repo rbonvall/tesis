@@ -1,0 +1,49 @@
+\chapter{Design of a Vortex Method for the Lamb-Oseen vortex}
+\label{ch:vm-design}
+
+
+This chapter introduces the fluid problem to be simulated,
+and the design decisions %...
+
+\section{The Lamb-Oseen vortex}
+\label{sec:lamb-oseen-vortex}
+
+The Lamb-Oseen vortex is the simplest viscous vortex.
+It is a two-dimensional flow with circular symmetry
+whose vorticity decays over time due to viscosity.
+
+Its analytical form is:
+\begin{equation}
+  \label{eq:lamb-oseen-vorticity}
+  ω(r, t) = \frac{Γ_0}{4πνt} \exp(-r^2/4νt),
+\end{equation}
+where \(Γ_0\) is the total circulation contained in the vortex
+\(ν\) is the viscosity of the fluid.
+and \(r^2 = x^2 + y^2\).
+The tangential velocity is given by:
+\begin{equation}
+  \label{eq:lamb-oseen-tangential-velocity}
+  u_\theta(r, t) = \frac{Γ_0}{2πr} \bigl(1 - \exp(-r^2/4νt)\bigr),
+\end{equation}
+which translates into the velocity vector
+\(\vec{u} = (-y, x)\cdot u_\theta(r, t)/r \).
+
+The Reynolds number of the vortex
+can be defined as \(\text{Re} = Γ_0/ν\).
+
+Because it has a known analytical solution,
+the Lamb-Oseen vortex is typically used
+for testing fluid flow simulations.
+
+\section{Discretization and initialization}
+\label{sec:lamb-oseen-discretization}
+
+The simulation for the Lamb-Oseen vortex
+needs to start at a time other than zero,
+because of the~\(t\) factor in the denominators
+in equation~\eqref{eq:lamb-oseen-vorticity}.
+\(t_0 = 4.0\) was chosen arbitrarily a starting time.
+
+
+
+
