@@ -1,0 +1,38 @@
+\chapter{GPU implementation}
+\label{ch:implementation}
+
+This chapter describes how the simulation was implemented on the GPU.
+
+\section{Work distribution}
+\label{sec:work-distribution}
+
+The simulation of the Lamb-Oseen vortex
+with the algorithm described in chapter~\ref{ch:vm-design}
+amounts to the numerical integration
+of the convection and diffusion equations
+for each of the particles of the system:
+\begin{align}
+    %\label{eq:integration}
+    x_p^{(n + 1)} &= x_p^{(n)} + u_p^{(n)}\, δt, \\
+    y_p^{(n + 1)} &= y_p^{(n)} + v_p^{(n)}\, δt, \\
+    α_p^{(n + 1)} &= α_p^{(n)} + \dot{α}_p^{(n)}\, δt.
+\end{align}
+
+At every time step~\(n\), the values of \(u\), \(v\) and \(\dot{α}\)
+must be evaluated as a function of all other particles:
+\begin{align}
+    %\label{eq:evaluation}
+    (u_p, v_p) &= \sum_q α_p \K_ε(\x_p - \x_q) \\
+    \dot{α}_p  &= νε^{-2} \sum_q (α_q - α_p)\,η_ε(\x_p - \x_q)
+\end{align}
+The inner terms of both summations have to be computed
+for every pair of particles.
+
+The reference algorithm for evaluating
+this kind of computation on the GPU
+is the one by Nyland et.~al~\cite[\S31]{gems3},
+which shows how to integrate a body system under gravitational interaction.
+
+
+
+
