@@ -73,7 +73,7 @@ was set to an estimation of the circulation
 around its containing cell,
 computed as \(α_p^{(0)} = h^2\cdot ω(\x_p, t_0)\).
 
-As the discretization is tipically done on a square mesh,
+As the discretization is typically done on a square mesh,
 the radial symmetry of the vorticity field
 is broken by the particles initialized in the corners of the mesh,
 introducing undesired artifacts in the integrated field.
@@ -111,7 +111,7 @@ As this \(N\)-term sum needs to be computed
 at each of the \(N\) particle locations,
 velocity evaluation is an~\(O(N^2)\) operation.
 This is an instance of the~\(N\)-body problem,
-and is tipically the most expensive stage
+and is typically the most expensive stage
 of a Vortex Method.
 
 Even though there are approximate algorithms better than~\(O(N^2)\)
