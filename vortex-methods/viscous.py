@@ -31,7 +31,7 @@ class LambOseenVortex:
         r_squared = r ** 2
         factor = (self.total_circulation *
                   (1 - exp(-r_squared / (4 * t * self.viscosity))) /
-                  (2 * pi * r))
+                  (2 * pi * r_squared))
         return (-y * factor, x * factor)
 
 # ζ_ε(r²)
