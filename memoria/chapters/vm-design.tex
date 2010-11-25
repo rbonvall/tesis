@@ -122,9 +122,6 @@ in several scientific and engineering applications,
 the efficient implementation of the all-pairs method in parallel architectures
 has been widely studied.
 
-The reference GPU version of this algorithm
-is the one by Nyland et.~al~\cite[\S31]{gems3}.
-
 \section{Trajectory integration}
 \label{sec:trajectory-integration}
 
@@ -181,13 +178,15 @@ yields its discrete form for each particle:
   Δ_ε ω_p = νε^{-2} \sum_q v_q [ω_q^h - ω_p^h]\cdot η_ε(\x_q - \x_p),
 \end{equation}
 where \(v_q\) is the volume of particle~\(q\).
-Since each particle represents a initial cell of volume \(v_p = h^2\),
-the core size is chosen to be \(ε = 2h\),
-and circulation is related to vorticity by \(α_p = v_p ω_p\),
-for the purposes of this work the PSE equation can be simplified to:
+All particles represent a initial cell of volume \(v_p = h^2\),
+which would not change when moving along the stream
+because of the incompressibility of the flow,
+and therefore \(v_p = v_q\).
+Since circulation is related to vorticity by \(α_p = v_p ω_p\),
+the PSE equation can be expressed in terms of circulation as:
 \begin{equation}
   \label{eq:pse-circ}
-  Δ_ε α_p = \frac{ν}{4} \sum_q [ω_q^h - ω_p^h]\cdot η_ε(\x_q - \x_p).
+  Δ_ε α_p = νε^{-2} \sum_q [α_q^h - α_p^h]\cdot η_ε(\x_q - \x_p).
 \end{equation}
 
 Just like for the convection stage,
@@ -224,16 +223,17 @@ is to do it in turns, taking first into account only the convective part of the 
 and then making the diffusion operator act on the new particle locations.
 This is known as \emph{viscous splitting},
 and is the basis of several diffusion models.
-
-Even though the Particle Strength Exchange method
-does not require to be formulated
-in a viscous splitting frame,
-for ease of implementation it will be used in this way.
 Viscous splitting limits the order of accuracy of the integration scheme
 (its basic two-step form is only second-order accurate
-at each time step~\cite[\S2.1.1]{barba04}),
-but since first-order integration is used in the first place,
-this is not a major problem.
+at each time step~\cite[\S2.1.1]{barba04}).
+
+The Particle Strength Exchange method
+does not require to be formulated
+in a viscous splitting frame.
+The velocity and the derivative of the vorticity
+can be evaluated at the same time step,
+and both convection and diffusion equations
+can also be integrated simultaneously.
 
 The Euler time-stepping scheme for the diffusion is:
 \begin{equation}
