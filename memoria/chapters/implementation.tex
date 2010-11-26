@@ -34,5 +34,64 @@ is the one by Nyland et.~al~\cite[\S31]{gems3},
 which shows how to integrate a body system under gravitational interaction.
 
 
+\newcommand{\nrbodies}{64}
+\newcommand{\lastbody}{63}
+\newcommand{\nrtiles}{8}
+\newcommand{\lasttile}{7}
+\newcommand{\nrtilebodies}{8}
+\newcommand{\lasttilebody}{7}
+
+\tikzstyle{innergrid}=[gray!80]
+\tikzstyle{tile}=[green!60!black, thick]
+\tikzstyle{sync}=[red!60!black, thick, dashed]
+\tikzstyle{thread}=[->, decorate, decoration={snake, amplitude=.6}]
+\tikzstyle{examplecell}=[fill=orange, opacity=.5]
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[scale=.2, yscale=-1]
+
+    \foreach \tile in {0,1,...,\lasttile} {
+      \draw[innergrid] (0, \tile * 9)
+          grid ++(\nrbodies, \nrtilebodies);
+      \draw[tile] (0, \tile * 9)
+          rectangle ++(\nrbodies, \nrtilebodies);
+      \draw (5 + \nrbodies, 9 * \tile + \nrtilebodies / 2)
+          node[anchor=center] { block $\tile$ };
+
+      \foreach \syncpoint in {1,...,7} {
+        \draw[sync] (8 * \syncpoint, \tile * 9) -- ++(0, 8);
+      }
+    }
+
+    \foreach \k in {0,...,\lasttilebody} {
+      \draw [thread]
+          (0.5, 27.5 + \k) -- (42.5, 27.5 + \k);
+      \draw [thread]
+          (0.5, 36.5 + \k) -- (25.5, 36.5 + \k);
+    }
+
+    \draw[examplecell] (37, 5) rectangle ++(1, -1);
+    \node (cellanchor) at (37.5, 5) {};
+
+    \draw (50, -5) node[anchor=south] (interaction) {
+      \(
+         \begin{aligned}
+             u &\leftarrow u + i(p, q) \\
+             v &\leftarrow v + i(p, q) \\
+         \end{aligned}
+      \)
+    };
+    \draw[->, out=270, in=90] (cellanchor) to (interaction.south);
+
+  \end{tikzpicture}
+  \label{fig:nbody-tiles}
+  \caption{Work distribution among threads and thread blocks.
+    Each small square represents an interaction between two particles.
+    Dashed lines show where threads synchronize and fetch a set of particles.
+    Waved lines show how threads compute interactions along a tile.
+  }
+\end{figure}
+
 
 
