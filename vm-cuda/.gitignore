@@ -2,3 +2,8 @@
 *.d.*
 *.o
 particles
+analytical-vel
+init
+integrate
+integrate-gpu
+vel-eval
