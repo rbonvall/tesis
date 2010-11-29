@@ -23,7 +23,7 @@ must be evaluated as a function of all other particles:
 \begin{align}
     %\label{eq:evaluation}
     (u_p, v_p) &= \sum_q α_p \K_ε(\x_p - \x_q) \\
-    \dot{α}_p  &= νε^{-2} \sum_q (α_q - α_p)\,η_ε(\x_p - \x_q)
+    \dot{α}_p  &= νε^{-2} \sum_q [α_q - α_p]\,η_ε(\x_p - \x_q)
 \end{align}
 The inner terms of both summations have to be computed
 for every pair of particles.
@@ -46,50 +46,97 @@ which shows how to integrate a body system under gravitational interaction.
 \tikzstyle{sync}=[red!60!black, thick, dashed]
 \tikzstyle{thread}=[->, decorate, decoration={snake, amplitude=.6}]
 \tikzstyle{examplecell}=[fill=orange, opacity=.5]
+\tikzstyle{kernelcall}=[rounded corners=2pt, very thick]
+\tikzstyle{kernellabel}=[anchor=west, text opacity=1.0, fill=white, fill opacity=.5,
+                         text height=1ex, text depth=.25ex, rounded corners]
+\tikzstyle{kernelarrow}=[->, thick, out=90, in=180]
 
 \begin{figure}
   \centering
-  \begin{tikzpicture}[scale=.2, yscale=-1]
+  \begin{tikzpicture}[scale=.2, yscale=-1, font=\small]
 
     \foreach \tile in {0,1,...,\lasttile} {
-      \draw[innergrid] (0, \tile * 9)
-          grid ++(\nrbodies, \nrtilebodies);
-      \draw[tile] (0, \tile * 9)
-          rectangle ++(\nrbodies, \nrtilebodies);
-      \draw (5 + \nrbodies, 9 * \tile + \nrtilebodies / 2)
+      \def\ybot{9 * \tile}
+      \draw[innergrid] (0, \ybot) grid      ++(\nrbodies, \nrtilebodies);
+      \draw[tile]      (0, \ybot) rectangle ++(\nrbodies, \nrtilebodies);
+      \draw (5 + \nrbodies, \ybot + \nrtilebodies / 2)
           node[anchor=center] { block $\tile$ };
 
-      \foreach \syncpoint in {1,...,7} {
-        \draw[sync] (8 * \syncpoint, \tile * 9) -- ++(0, 8);
-      }
+      \foreach \syncpoint in {1,...,7}
+        \draw[sync] (8 * \syncpoint, \ybot) -- ++(0, 8);
     }
 
-    \foreach \k in {0,...,\lasttilebody} {
-      \draw [thread]
-          (0.5, 27.5 + \k) -- (42.5, 27.5 + \k);
-      \draw [thread]
-          (0.5, 36.5 + \k) -- (25.5, 36.5 + \k);
-    }
+    \def\block{1}
+    \def\to{43}
+    \foreach \k in {0,...,3}
+      \draw [thread] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 1, 0);
+    \def\to{42}
+    \foreach \k in {4,...,\lasttilebody}
+      \draw [thread] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 1, 0);
 
-    \draw[examplecell] (37, 5) rectangle ++(1, -1);
-    \node (cellanchor) at (37.5, 5) {};
+    \def\block{2}
+    \def\to{12}
+    \foreach \k in {0,1}
+      \draw [thread] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 1, 0);
+    \def\to{11}
+    \foreach \k in {2,...,\lasttilebody}
+      \draw [thread] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 1, 0);
+
+    \def\block{3}
+    \def\to{24}
+    \foreach \k in {0,...,\lasttilebody}
+      \draw [thread] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 0.5, 0);
+
+    \def\block{4}
+    \def\to{45}
+    \foreach \k in {0,1,3,4,...,\lasttilebody}
+      \draw [thread, gray] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 1, 0);
+
+    % draw kernel calls
+    \def\currentx{44}
+    \def\currenty{9 * \block + 2}
+    \draw[kernelcall, brown, pattern=north east lines, pattern color=brown]
+      (   0, \currenty - .2) rectangle ++(64, 1.4);
+    \draw[kernelcall, blue!50!black, pattern=north west lines, pattern color=blue!50!black]
+      (  40, \currenty - .1) rectangle ++( 8, 1.2);
+    \draw[kernelcall, orange, fill]
+      (\currentx, \currenty) rectangle ++( 1, 1);
+    \node[anchor=base] (interactionanchor) at (\currentx + 0.5, \currenty + 1.0) {};
+    \node[anchor=base] (tileanchor)        at (\currentx - 2.5, \currenty + 1.1) {};
+    \node[anchor=base] (evalanchor)        at (\currentx - 8.5, \currenty + 1.2) {};
+
+    \node[kernellabel] (interactionlabel) at (49.5, \currenty +  4.5) {\textit{interaction}};
+    \node[kernellabel] (tilelabel)        at (49.5, \currenty +  7.5) {\textit{tile\_computation}};
+    \node[kernellabel] (evallabel)        at (49.5, \currenty + 10.5) {\textit{evaluation}};
+
+    \draw[kernelarrow, orange]        (interactionanchor.base) to (interactionlabel);
+    \draw[kernelarrow, blue!50!black] (tileanchor.base)        to (tilelabel);
+    \draw[kernelarrow, brown]         (evalanchor.base)        to (evallabel);
+
+    % draw active thread
+    \draw [thread] (0.5, 9 * \block + 0.5 + 2) -- ++(\to - 1, 0);
+
+    \draw[examplecell] (37, 5) rectangle ++(1, 1);
+    \node[anchor=base] (cellanchor) at (37.5, 5.5) {};
 
     \draw (50, -5) node[anchor=south] (interaction) {
       \(
-         \begin{aligned}
-             u &\leftarrow u + i(p, q) \\
-             v &\leftarrow v + i(p, q) \\
-         \end{aligned}
+       \begin{aligned}
+         {\vec u}_{pq} &\leftarrow α_q\,\K_ε(\x_p - \x_q) \\
+         \dot{α}_{pq}  &\leftarrow νε^{-2} [α_q - α_p]\,η_ε(\x_p - \x_q) \\
+       \end{aligned}
       \)
     };
-    \draw[->, out=270, in=90] (cellanchor) to (interaction.south);
+    \draw[->, out=270, in=90] (cellanchor.base) to (interaction.south);
 
   \end{tikzpicture}
   \label{fig:nbody-tiles}
-  \caption{Work distribution among threads and thread blocks.
+  \caption{Work distribution among threads and thread blocks
+    for a system of \protect{\(N = 64\)} particles and
+    a grid of \protect{\(B = 8\)} thread blocks.
     Each small square represents an interaction between two particles.
     Dashed lines show where threads synchronize and fetch a set of particles.
-    Waved lines show how threads compute interactions along a tile.
+    Waved lines show how threads sequentially compute interactions along a tile.
   }
 \end{figure}
 
