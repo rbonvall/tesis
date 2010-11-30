@@ -47,9 +47,9 @@ which shows how to integrate a body system under gravitational interaction.
 \tikzstyle{thread}=[->, decorate, decoration={snake, amplitude=.6}]
 \tikzstyle{examplecell}=[fill=orange, opacity=.5]
 \tikzstyle{kernelcall}=[rounded corners=2pt, very thick]
-\tikzstyle{kernellabel}=[anchor=west, text opacity=1.0, fill=white, fill opacity=.5,
-                         text height=1ex, text depth=.25ex, rounded corners]
 \tikzstyle{kernelarrow}=[->, thick, out=90, in=180]
+\tikzstyle{imglabel}=[anchor=west, text opacity=1.0, fill=white, fill opacity=.5,
+                      text height=1ex, text depth=.25ex, rounded corners]
 
 \begin{figure}
   \centering
@@ -63,7 +63,7 @@ which shows how to integrate a body system under gravitational interaction.
           node[anchor=center] { block $\tile$ };
 
       \foreach \syncpoint in {1,...,7}
-        \draw[sync] (8 * \syncpoint, \ybot) -- ++(0, 8);
+        \draw[sync] (\nrtiles * \syncpoint, \ybot) -- ++(0, \nrtilebodies);
     }
 
     \def\block{1}
@@ -105,9 +105,9 @@ which shows how to integrate a body system under gravitational interaction.
     \node[anchor=base] (tileanchor)        at (\currentx - 2.5, \currenty + 1.1) {};
     \node[anchor=base] (evalanchor)        at (\currentx - 8.5, \currenty + 1.2) {};
 
-    \node[kernellabel] (interactionlabel) at (49.5, \currenty +  4.5) {\textit{interaction}};
-    \node[kernellabel] (tilelabel)        at (49.5, \currenty +  7.5) {\textit{tile\_computation}};
-    \node[kernellabel] (evallabel)        at (49.5, \currenty + 10.5) {\textit{evaluation}};
+    \node[imglabel] (interactionlabel) at (49.5, \currenty +  4.5) {\textit{interaction}};
+    \node[imglabel] (tilelabel)        at (49.5, \currenty +  7.5) {\textit{tile\_computation}};
+    \node[imglabel] (evallabel)        at (49.5, \currenty + 10.5) {\textit{evaluation}};
 
     \draw[kernelarrow, orange]        (interactionanchor.base) to (interactionlabel);
     \draw[kernelarrow, blue!50!black] (tileanchor.base)        to (tilelabel);
@@ -116,18 +116,32 @@ which shows how to integrate a body system under gravitational interaction.
     % draw active thread
     \draw [thread] (0.5, 9 * \block + 0.5 + 2) -- ++(\to - 1, 0);
 
-    \draw[examplecell] (37, 5) rectangle ++(1, 1);
-    \node[anchor=base] (cellanchor) at (37.5, 5.5) {};
+    \def\examplex{21}
+    \def\exampley{5}
+    \draw[examplecell] (\examplex, \exampley) rectangle ++(1, 1);
+    \node[anchor=base] (cellanchor) at (\examplex + .5, \exampley + .5) {};
 
-    \draw (50, -5) node[anchor=south] (interaction) {
+    \draw (35, -5) node[anchor=west] (interaction) {
       \(
+       \left\{
        \begin{aligned}
-         {\vec u}_{pq} &\leftarrow α_q\,\K_ε(\x_p - \x_q) \\
-         \dot{α}_{pq}  &\leftarrow νε^{-2} [α_q - α_p]\,η_ε(\x_p - \x_q) \\
+         {\vec u}_{pq} &= α_q\,\K_ε(\x_p - \x_q) \\
+         \dot{α}_{pq}  &= νε^{-2} [α_q - α_p]\,η_ε(\x_p - \x_q) \\
        \end{aligned}
+       \right.
       \)
     };
-    \draw[->, out=270, in=90] (cellanchor.base) to (interaction.south);
+    \draw[->, out=-45, in=180] (cellanchor.base) to (interaction);
+    \node[imglabel, anchor=east]  (plabel) at (\examplex - 7,  \exampley + .5) {\((x_p, y_p, α_p)\)};
+    \node[imglabel, anchor=south] (qlabel) at (\examplex + .5, -1) {\((x_q, y_q, α_q)\)};
+    \draw[dotted, very thick] (plabel) -- (cellanchor.base);
+    \draw[dotted, very thick] (qlabel) -- (cellanchor.base);
+
+    \foreach \block in {1,2,3,4} {
+      \foreach \thread in {0,...,7} {
+        \node[font=\tiny, anchor=east] at (0, .5 + \block * 9 + \thread) {\thread};
+      }
+    }
 
   \end{tikzpicture}
   \label{fig:nbody-tiles}
@@ -136,9 +150,9 @@ which shows how to integrate a body system under gravitational interaction.
     a grid of \protect{\(B = 8\)} thread blocks.
     Each small square represents an interaction between two particles.
     Dashed lines show where threads synchronize and fetch a set of particles.
-    Waved lines show how threads sequentially compute interactions along a tile.
+    Waved lines show how threads sequentially compute interactions along a row.
+    The rectangles in block 4 show which device kernels are in execution
+    during the computation of a particle pair interaction.
   }
 \end{figure}
-
-
 
