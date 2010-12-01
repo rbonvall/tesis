@@ -3,6 +3,12 @@
 
 This chapter describes how the simulation was implemented on the GPU.
 
+The reference algorithm for evaluating
+this kind of computation on the GPU
+is the one by Nyland et.~al~\cite[\S31]{gems3},
+which shows how to integrate a body system
+subject to gravitational interactions.
+
 \section{Work distribution}
 \label{sec:work-distribution}
 
@@ -10,43 +16,70 @@ The simulation of the Lamb-Oseen vortex
 with the algorithm described in chapter~\ref{ch:vm-design}
 amounts to the numerical integration
 of the convection and diffusion equations
-for each of the particles of the system:
+for each of the~\(N\) particles of the system:
 \begin{align}
-    %\label{eq:integration}
+    \label{eq:x-integration}
     x_p^{(n + 1)} &= x_p^{(n)} + u_p^{(n)}\, δt, \\
+    \label{eq:y-integration}
     y_p^{(n + 1)} &= y_p^{(n)} + v_p^{(n)}\, δt, \\
+    \label{eq:a-integration}
     α_p^{(n + 1)} &= α_p^{(n)} + \dot{α}_p^{(n)}\, δt.
 \end{align}
 
-At every time step~\(n\), the values of \(u\), \(v\) and \(\dot{α}\)
-must be evaluated as a function of all other particles:
+At every time step~\(n\),
+and for every particle~\(p\),
+the values of \(u_p\), \(v_p\) and \(\dot{α}_p\)
+must be evaluated as a function of all other particles
+using the Biot-Savart law and the Particle Strength Exchange formula:
 \begin{align}
     %\label{eq:evaluation}
-    (u_p, v_p) &= \sum_q α_p \K_ε(\x_p - \x_q) \\
-    \dot{α}_p  &= νε^{-2} \sum_q [α_q - α_p]\,η_ε(\x_p - \x_q)
+%    (u_p, v_p) &= \sum_q α_p \K_ε(\x_p - \x_q) \\
+%    \dot{α}_p  &= νε^{-2} \sum_q [α_q - α_p]\,η_ε(\x_p - \x_q)
+    \label{eq:bs-sum}
+    (u_p, v_p) &= \sum_q \vec{U}_{pq},   & \text{where } \vec{U}_{pq} &= α_p \K_ε(\x_p - \x_q), \text{and} \\
+    \label{eq:pse-sum}
+    \dot{α}_p  &= νε^{-2} \sum_q A_{pq}, & \text{where }       A_{pq} &= [α_q - α_p]\,η_ε(\x_p - \x_q).
 \end{align}
-The inner terms of both summations have to be computed
-for every pair of particles.
+Sums~\eqref{eq:bs-sum} and~\eqref{eq:pse-sum} can be computed
+independently among particles,
+provided that the descriptions~\(x_q, y_q, α_q\)
+for all the particles are available.
 
-The reference algorithm for evaluating
-this kind of computation on the GPU
-is the one by Nyland et.~al~\cite[\S31]{gems3},
-which shows how to integrate a body system under gravitational interaction.
+On the GPU, thus,
+each thread is assigned the job
+of computing sums~\eqref{eq:bs-sum} and~\eqref{eq:pse-sum} for one particle,
+and of updating the particle description
+according to equations~\eqref{eq:x-integration},
+\eqref{eq:y-integration} and~\eqref{eq:a-integration}.
 
+The~\(N\) threads are grouped in \(B\)~blocks of \(T = N/B\)~threads
+(for the time being, let us assume that~\(B\mid N\)).
+All threads within a block execute concurrently
+(but not necessarily simultaneously),
+while all blocks are scheduled independent of each other
+to be executed when multiprocessors are available.
 
-\newcommand{\nrbodies}{64}
-\newcommand{\lastbody}{63}
-\newcommand{\nrtiles}{8}
-\newcommand{\lasttile}{7}
-\newcommand{\nrtilebodies}{8}
-\newcommand{\lasttilebody}{7}
+Thread~\(t\) in block~\(b\) evaluates \(\vec u_p\) and \(\dot{α}_p\)
+for particle~\(p = bT + t\).
+Conversely,
+particle~\(p\) is evaluated by thread~\(t = p\bmod T\)
+in block~\(b = \lfloor p/T \rfloor\).
+
+Figure~\ref{fig:nbody-tiles} shows a schematic representation
+of the distribution of work among threads.
+All of the~\(N^2\) particle interactions are represented
+as cells in the finer grid.
+Each thread computes sequentially the interactions
+along a row.
+In this example, blocks 1 through 4 are already in execution,
+while the others have not started yet.
 
 \tikzstyle{innergrid}=[gray!80]
 \tikzstyle{tile}=[green!60!black, thick]
 \tikzstyle{sync}=[red!60!black, thick, dashed]
 \tikzstyle{thread}=[->, decorate, decoration={snake, amplitude=.6}]
 \tikzstyle{examplecell}=[fill=orange, opacity=.5]
-\tikzstyle{kernelcall}=[rounded corners=2pt, very thick]
+\tikzstyle{kernelcall}=[#1, rounded corners=2pt, very thick, pattern color=#1]
 \tikzstyle{kernelarrow}=[->, thick, out=90, in=180]
 \tikzstyle{imglabel}=[anchor=west, text opacity=1.0, fill=white, fill opacity=.5,
                       text height=1ex, text depth=.25ex, rounded corners]
@@ -55,18 +88,24 @@ which shows how to integrate a body system under gravitational interaction.
   \centering
   \begin{tikzpicture}[scale=.2, yscale=-1, font=\small]
 
-    \foreach \tile in {0,1,...,\lasttile} {
-      \def\ybot{9 * \tile}
-      \draw[innergrid] (0, \ybot) grid      ++(\nrbodies, \nrtilebodies);
-      \draw[tile]      (0, \ybot) rectangle ++(\nrbodies, \nrtilebodies);
-      \draw (5 + \nrbodies, \ybot + \nrtilebodies / 2)
-          node[anchor=center] { block $\tile$ };
+    \def\nrbodies{64}     \def\lastbody{63}
+    \def\nrblocks{8}      \def\lastblock{7}
+    \def\nrtiles{8}       \def\lasttile{7}
+    \def\nrblockbodies{8} \def\lastblockbody{7}
+    \def\nrtilebodies{8}  \def\lasttilebody{7}
+
+    \foreach \block in {0,1,...,\lastblock} {
+      \def\ybot{9 * \block}
+      \draw[innergrid] (0, \ybot) grid      ++(\nrbodies, \nrblockbodies);
+      \draw[tile]      (0, \ybot) rectangle ++(\nrbodies, \nrblockbodies);
+      \draw (1 + \nrbodies, \ybot + \nrtilebodies / 2)
+          node[anchor=west] { block $\block$ };
 
       \foreach \syncpoint in {1,...,7}
         \draw[sync] (\nrtiles * \syncpoint, \ybot) -- ++(0, \nrtilebodies);
     }
 
-    \def\block{1}
+    \def\block{2}
     \def\to{43}
     \foreach \k in {0,...,3}
       \draw [thread] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 1, 0);
@@ -74,8 +113,8 @@ which shows how to integrate a body system under gravitational interaction.
     \foreach \k in {4,...,\lasttilebody}
       \draw [thread] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 1, 0);
 
-    \def\block{2}
-    \def\to{12}
+    \def\block{1}
+    \def\to{14}
     \foreach \k in {0,1}
       \draw [thread] (0.5, 9 * \block + 0.5 + \k) -- ++(\to - 1, 0);
     \def\to{11}
@@ -95,11 +134,11 @@ which shows how to integrate a body system under gravitational interaction.
     % draw kernel calls
     \def\currentx{44}
     \def\currenty{9 * \block + 2}
-    \draw[kernelcall, brown, pattern=north east lines, pattern color=brown]
+    \draw[kernelcall=brown, pattern=north east lines]
       (   0, \currenty - .2) rectangle ++(64, 1.4);
-    \draw[kernelcall, blue!50!black, pattern=north west lines, pattern color=blue!50!black]
+    \draw[kernelcall=blue!50!black, pattern=north west lines]
       (  40, \currenty - .1) rectangle ++( 8, 1.2);
-    \draw[kernelcall, orange, fill]
+    \draw[kernelcall=orange, fill]
       (\currentx, \currenty) rectangle ++( 1, 1);
     \node[anchor=base] (interactionanchor) at (\currentx + 0.5, \currenty + 1.0) {};
     \node[anchor=base] (tileanchor)        at (\currentx - 2.5, \currenty + 1.1) {};
@@ -121,12 +160,12 @@ which shows how to integrate a body system under gravitational interaction.
     \draw[examplecell] (\examplex, \exampley) rectangle ++(1, 1);
     \node[anchor=base] (cellanchor) at (\examplex + .5, \exampley + .5) {};
 
-    \draw (35, -5) node[anchor=west] (interaction) {
+    \draw (35, -4) node[imglabel, anchor=west] (interaction) {
       \(
        \left\{
        \begin{aligned}
-         {\vec u}_{pq} &= α_q\,\K_ε(\x_p - \x_q) \\
-         \dot{α}_{pq}  &= νε^{-2} [α_q - α_p]\,η_ε(\x_p - \x_q) \\
+         {\vec U}_{pq} &= α_q\,\K_ε(\x_p - \x_q) \\
+         A_{pq}        &= [α_q - α_p]\,η_ε(\x_p - \x_q) \\
        \end{aligned}
        \right.
       \)
@@ -145,14 +184,40 @@ which shows how to integrate a body system under gravitational interaction.
 
   \end{tikzpicture}
   \label{fig:nbody-tiles}
-  \caption{Work distribution among threads and thread blocks
+  \caption[Work distribution among threads.]%
+    {Work distribution among threads and thread blocks
     for a system of \protect{\(N = 64\)} particles and
-    a grid of \protect{\(B = 8\)} thread blocks.
+    a grid of \protect{\(B = 8\)} thread blocks of \(T = N/B = 8\) threads.
     Each small square represents an interaction between two particles.
-    Dashed lines show where threads synchronize and fetch a set of particles.
+    Dashed lines show where threads synchronize
+    and fetch a new set of particles into shared memory.
     Waved lines show how threads sequentially compute interactions along a row.
-    The rectangles in block 4 show which device kernels are in execution
-    during the computation of a particle pair interaction.
+    The rectangles in block 4 show the interactions associated
+    to each of the device kernels being called.
   }
 \end{figure}
+
+\section{Memory management}
+\label{sec:memory-management}
+
+Throughout the simulation,
+the current state of the particle system
+is stored in an array of particles in global memory,
+where each particle is represented as a 3-tuple~\(x_p, y_p, α_p\).
+
+Global memory reads are always~\emph{coalesced} (accessed in chunks)
+and \emph{aligned} to chunk boundaries\fbox{CITE}.
+Unaligned accesses imposes a performance penalty,
+since more chunks must be fetched
+when data spills across boundaries.
+
+Since chunks are aligned to powers of two,
+accesses are more efficient when particles are stored
+as values of type~\texttt{float4}
+(a record of four single-precision floating point values)
+whose fourth field is unused.
+
+\section{Kernel implementation}
+\label{sec:kernel-implementation}
+
 
