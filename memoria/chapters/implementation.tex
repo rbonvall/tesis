@@ -65,15 +65,6 @@ Conversely,
 particle~\(p\) is evaluated by thread~\(t = p\bmod T\)
 in block~\(b = \lfloor p/T \rfloor\).
 
-Figure~\ref{fig:nbody-tiles} shows a schematic representation
-of the distribution of work among threads.
-All of the~\(N^2\) particle interactions are represented
-as cells in the finer grid.
-Each thread computes sequentially the interactions
-along a row.
-In this example, blocks 1 through 4 are already in execution,
-while the others have not started yet.
-
 \tikzstyle{innergrid}=[gray!80]
 \tikzstyle{tile}=[green!60!black, thick]
 \tikzstyle{sync}=[red!60!black, thick, dashed]
@@ -189,7 +180,6 @@ while the others have not started yet.
     }
 
   \end{tikzpicture}
-  \label{fig:nbody-tiles}
   \caption[Work distribution among threads.]%
     {Work distribution among threads and thread blocks
     for a system of \protect{\(N = 64\)} particles and
@@ -201,7 +191,17 @@ while the others have not started yet.
     The rectangles in block 4 show the interactions associated
     to each of the device kernels being called.
   }
+  \label{fig:nbody-tiles}
 \end{figure}
+
+Figure~\ref{fig:nbody-tiles} shows a schematic representation
+of the distribution of work among threads.
+All of the~\(N^2\) particle interactions are represented
+as cells in the finer grid.
+Each thread computes sequentially the interactions
+along a row.
+In this example, blocks 1 through 4 are already in execution,
+while the others have not started yet.
 
 \section{Memory management}
 \label{sec:memory-management}
