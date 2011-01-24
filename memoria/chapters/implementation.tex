@@ -209,19 +209,22 @@ while the others have not started yet.
 Throughout the simulation,
 the current state of the particle system
 is stored in an array of particles in global memory,
-where each particle is represented as a 3-tuple~\(x_p, y_p, α_p\).
+where each particle is described as a 3-tuple~\(x_p, y_p, α_p\).
 
-Global memory reads are always~\emph{coalesced} (accessed in chunks)
+On Nvidia GPUs,
+global memory reads are always~\emph{coalesced} (accessed in chunks)
 and \emph{aligned} to chunk boundaries\fbox{CITE}.
 Unaligned accesses imposes a performance penalty,
 since more chunks must be fetched
 when data spills across boundaries.
 
-Since chunks are aligned to powers of two,
+Since chunks are aligned to addresses that are
+multiples of 32, 64 or 128 (depending of the chunk size),
 accesses are more efficient when particles are stored
-as values of type~\texttt{float4}
-(a record of four single-precision floating point values)
-whose fourth field is unused.
+as values of type~\texttt{float4} instead of~\texttt{float3}
+(records of resp.\@ four and three single-precision floating point values)
+whose fourth field is kept unused,
+
 
 \section{Kernel implementation}
 \label{sec:kernel-implementation}
