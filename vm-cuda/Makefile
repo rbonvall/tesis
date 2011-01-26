@@ -25,7 +25,7 @@ INCLUDEFLAGS = -I $(BOOSTHEADERS) -I $(CUDAHEADERS) -I $(THRUSTHEADERS)
 LDFLAGS += -lm -lboost_program_options -lgomp -lcudart
 
 SRC = $(wildcard *.cpp)
-TARGETS = init analytical-vel vel-eval integrate integrate-gpu
+TARGETS = init analytical-vel vel-eval integrate integrate-gpu thrust-integrate.o
 
 all: $(TARGETS)
 init: init.o vm.o
@@ -33,6 +33,9 @@ analytical-vel: analytical-vel.o vm.o
 vel-eval: vel-eval.o vm.o
 integrate: integrate.o vm.o
 integrate-gpu: cuda-integrate.o vm.o
+
+thrust-integrate.o: thrust-integrate.cu
+	$(NVCC) $(NVCCFLAGS) $(INCLUDEFLAGS) $< -c -o $@
 
 cuda-integrate.o: cuda-integrate.cu cuda-integrate.hpp
 	$(NVCC) $(NVCCFLAGS) $(INCLUDEFLAGS) $< -c -o $@
