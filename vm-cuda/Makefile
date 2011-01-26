@@ -19,7 +19,9 @@ else
     #LIBRARY_PATH = $(LD_LIBRARY_PATH)
 endif
 
-INCLUDEFLAGS = -I $(BOOSTHEADERS) -I $(CUDAHEADERS)
+THRUSTHEADERS = thrust
+
+INCLUDEFLAGS = -I $(BOOSTHEADERS) -I $(CUDAHEADERS) -I $(THRUSTHEADERS)
 LDFLAGS += -lm -lboost_program_options -lgomp -lcudart
 
 SRC = $(wildcard *.cpp)
