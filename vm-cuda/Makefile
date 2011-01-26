@@ -12,7 +12,7 @@ ifeq ($(shell hostname),gp01)
 else
     CUDA = /usr/local/cuda
     CUDAHEADERS = $(CUDA)/include
-    NVCCFLAGS = -deviceemu
+    NVCCFLAGS = #-deviceemu
     BOOSTHEADERS = /usr/include/boost
     LDFLAGS += -L$(CUDA)/lib64 -L$(CUDA)/lib
     #LD_LIBRARY_PATH := /usr/local/cuda/lib64:/usr/local/cuda/lib:$(LD_LIBRARY_PATH)
