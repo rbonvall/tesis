@@ -105,7 +105,7 @@ void solve(std::vector<particle> particles, float dt, unsigned nr_iterations) {
         integrate<<<N/256, 256>>>(dt, N,
                 (float4*) thrust::raw_pointer_cast(&ps_d[current_read]),
                 (float4*) thrust::raw_pointer_cast(&ps_d[current_write]));
-        cudaSynchronizeThreads();
+        cudaThreadSynchronize();
 
         std::swap(current_read, current_write);
     }
