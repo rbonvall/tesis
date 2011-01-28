@@ -13,6 +13,60 @@ struct particle_to_float4 {
 };
 
 
+__device__ float3
+particle_interaction(float3 d, float4 p, float4 q) {
+
+#   define SQ(x) ((x) * (x))
+
+    float2 r = make_float2(p.x - q.x, p.y - q.y);
+    float dist_sq = SQ(r.x) + SQ(r.y);
+
+    // TODO: evaluate Biot-Savart kernel and PSE kernel
+
+    return d;
+}
+
+
+__device__ float3
+update_tile(float4 p, float3 d) {
+
+    extern __shared__ float4 shared_particles[];
+
+    unsigned long i = 0;
+    unsigned int counter = 0;
+
+#   define SHARED(i) (shared_particles[(i) + blockDim.x * threadIdx.y])
+
+    while (counter < blockDim.x) {
+        d = particle_interaction(d, p, SHARED(i++));
+        ++counter;
+    }
+
+    return d;
+}
+
+
+__device__ float3
+eval_derivatives(float4 p, float4 *particles, float N) {
+    unsigned pid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    unsigned num_tiles = 0; // TODO
+
+    extern __shared__ float4 shared_particles[];
+
+    float3 derivatives = make_float3(0.0f, 0.0f, 0.0f);
+    for (int tile = 0; tile < num_tiles; ++tile) {
+        shared_particles[threadIdx.x] = particles[0]; // TODO
+        __syncthreads();
+
+        derivatives = update_tile(p, derivatives);
+        __syncthreads();
+    }
+
+    return derivatives;
+}
+
+
 __global__ void
 integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_particles) {
     unsigned pid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -21,7 +75,7 @@ integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_pa
     float4 p = old_particles[pid];
 
     // compute velocity and derivative of circulation for particle p
-    float3 derivatives /*= eval_derivatives(p, old_particles, nr_particles)*/;
+    float3 derivatives = eval_derivatives(p, old_particles, nr_particles);
 
     // convect particle and copy it to global memory
     p.x += derivatives.x * dt;
