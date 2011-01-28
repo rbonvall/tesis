@@ -14,22 +14,20 @@ struct particle_to_float4 {
 
 
 __global__ void
-integrate(float dt, unsigned nr_particles, float4 *old_part, float4 *new_part) {
+integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_particles) {
     unsigned pid = blockIdx.x * blockDim.x + threadIdx.x;
 
     // fetch particle from global memory
-    float4 p = old_part[pid];
+    float4 p = old_particles[pid];
 
     // compute velocity and derivative of circulation for particle p
-    float3 derivatives /*= eval_derivatives(p, old_part, nr_particles)*/;
-
-    // compute the derivative of the circulation by using PSE
+    float3 derivatives /*= eval_derivatives(p, old_particles, nr_particles)*/;
 
     // convect particle and copy it to global memory
     p.x += derivatives.x * dt;
     p.y += derivatives.y * dt;
     p.z += derivatives.z * dt;
-    new_part[pid] = p;
+    new_particles[pid] = p;
 }
 
 
