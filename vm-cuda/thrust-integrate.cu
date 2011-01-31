@@ -4,7 +4,13 @@
 #include "thrust/host_vector.h"
 #include "thrust/device_vector.h"
 #include "thrust/transform.h"
+#include <cmath>
 
+#   define SQ(x) ((x) * (x))
+const float ONE_OVER_TWO_PI = (1 / (2 * M_PI));
+const float E = 9e-2;
+const float SQ_E = SQ(E);
+const float VISCOSITY = 5e-3;
 
 struct particle_to_float4 {
     float4 operator()(particle p) {
@@ -13,15 +19,25 @@ struct particle_to_float4 {
 };
 
 
+__device__ float eta(float sq_r) {
+    return ONE_OVER_TWO_PI * expf(-sq_r/SQ_E);
+}
+
+
 __device__ float3
 particle_interaction(float3 d, float4 p, float4 q) {
 
-#   define SQ(x) ((x) * (x))
-
     float2 r = make_float2(p.x - q.x, p.y - q.y);
-    float dist_sq = SQ(r.x) + SQ(r.y);
+    float sq_r = SQ(r.x) + SQ(r.y);
 
-    // TODO: evaluate Biot-Savart kernel and PSE kernel
+    // update velocity
+    float vel_kernel_factor = (ONE_OVER_TWO_PI / sq_r) *
+                              (1 - expf(-sq_r / SQ_E));
+    d.x += vel_kernel_factor * -r.y;
+    d.y += vel_kernel_factor *  r.x;
+
+    // update circulation
+    d.z += (q.z - p.z) * eta(sq_r);
 
     return d;
 }
@@ -29,19 +45,19 @@ particle_interaction(float3 d, float4 p, float4 q) {
 
 __device__ float3
 update_tile(float4 p, float3 d) {
-
     extern __shared__ float4 shared_particles[];
 
     unsigned long i = 0;
     unsigned int counter = 0;
 
-#   define SHARED(i) (shared_particles[(i) + blockDim.x * threadIdx.y])
+#   define SHARED(i) (shared_particles[(i) + blockDim.x * threadIdx.x])
 
     while (counter < blockDim.x) {
         d = particle_interaction(d, p, SHARED(i++));
         ++counter;
     }
 
+    d.z *= VISCOSITY * (1 / SQ_E);
     return d;
 }
 
