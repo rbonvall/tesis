@@ -39,6 +39,9 @@ which translates into the velocity vector
 %the changes in the vorticity field during the flow evolution
 %are due only to diffusion.
 
+The Reynolds number of the vortex
+is typically defined as \(\text{Re} = Γ_0/ν\).
+
 Because of its simplicity,
 the Lamb-Oseen vortex is typically used
 for testing viscous fluid flow simulations.
@@ -46,10 +49,15 @@ Its known analytical form allows exact error measuring,
 and since it evolves in free space,
 there are no solid boundaries that need to be accounted for.
 
-The Reynolds number of the vortex
-can be defined as \(\text{Re} = Γ_0/ν\).
-
-\todo{Aplicación del vórtice de L-O a los vórtices de las alas de los aviones.}
+Also, it can be used in practice
+as a model for simple rotational phenomena.
+For example,
+the wing tips of a flying airplane
+generate two strong counter-rotating cylindrical air masses,
+whose cross-section can be described roughly as Lamb-Oseen vortices
+for analytical purposes~\cite{mcgowan71}.
+These trailing vortices in the wake of large aircraft
+can be hazardous to other planes encountering them in flight.
 
 \section{Discretization and initialization}
 \label{sec:lamb-oseen-discretization}
