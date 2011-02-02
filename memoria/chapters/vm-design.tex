@@ -168,7 +168,7 @@ The Euler time-stepping scheme is:
   \x_p^{(n + 1)} = \x_p^{(n)} + \vec u_p^{(n)}\cdot δt,
 \end{equation}
 where \(\vec u_p^{(n)}\) is the velocity of the particle
-at time \(t = n\cdot δt\)
+at time \(t = t_0 + n\cdot δt\)
 evaluated through equation~%
 \eqref{eq:biot-savart-law-velocity-evaluation}.
 
@@ -196,7 +196,7 @@ where \(v_q\) is the volume of particle~\(q\).
 All particles represent a initial cell of volume \(v_p = h^2\),
 which would not change when moving along the stream
 because of the incompressibility of the flow,
-and therefore \(v_p = v_q\).
+and therefore \(v_p = v_q\) for all \(p\) and \(q\).
 Since circulation is related to vorticity by \(α_p = v_p ω_p\),
 the PSE equation can be expressed in terms of circulation as:
 \begin{equation}
@@ -255,7 +255,7 @@ The Euler time-stepping scheme for the diffusion is:
   \label{eq:euler-diffusion}
   α_p^{(n + 1)} = α_p^{(n)} + \dot{α}_p^{(n)}\cdot δt,
 \end{equation}
-where~\(\dot{α}_p\) is the derivative of vorticity
-estimated by the Particle Strength Exchange method
+where~\(\dot{α}_p\) is the derivative of the circulation
+evaluated by the Particle Strength Exchange method
 as in equation~\eqref{eq:pse-circ}.
 
