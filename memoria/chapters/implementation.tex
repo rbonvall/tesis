@@ -46,7 +46,7 @@ provided that the descriptions~\(x_q, y_q, α_q\)
 for all the particles are available.
 
 On the GPU, thus,
-each thread is assigned the job
+each thread is assigned the tasks
 of computing sums~\eqref{eq:bs-sum} and~\eqref{eq:pse-sum} for one particle,
 and of updating the particle description
 according to equations~\eqref{eq:x-integration},
@@ -209,7 +209,7 @@ while the others have not started yet.
 Throughout the simulation,
 the current state of the particle system
 is stored in an array of particles in global memory,
-where each particle is described as a 3-tuple~\(x_p, y_p, α_p\).
+where each particle is described as a 3-tuple~\((x_p, y_p, α_p)\).
 
 On Nvidia GPUs,
 global memory reads are always~\emph{coalesced} (accessed in chunks)
