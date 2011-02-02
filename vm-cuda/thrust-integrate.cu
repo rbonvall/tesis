@@ -6,10 +6,13 @@
 #include "thrust/transform.h"
 #include <cmath>
 
-#   define SQ(x) ((x) * (x))
+#define T 512 // threads per block
+
+#define SQ(x) ((x) * (x))
 const float ONE_OVER_TWO_PI = (1 / (2 * M_PI));
 const float E = 9e-2;
 const float SQ_E = SQ(E);
+const float ONE_OVER_SQ_E = 1 / SQ_E;
 const float VISCOSITY = 5e-3;
 
 struct particle_to_float4 {
@@ -23,6 +26,10 @@ __device__ float eta(float sq_r) {
     return ONE_OVER_TWO_PI * expf(-sq_r/SQ_E);
 }
 
+__device__ float k_factor(float sq_r) {
+    return (ONE_OVER_TWO_PI / sq_r) * (1 - expf(-sq_r / SQ_E));
+}
+
 
 __device__ float3
 particle_interaction(float3 d, float4 p, float4 q) {
@@ -31,8 +38,7 @@ particle_interaction(float3 d, float4 p, float4 q) {
     float sq_r = SQ(r.x) + SQ(r.y);
 
     // update velocity
-    float vel_kernel_factor = (ONE_OVER_TWO_PI / sq_r) *
-                              (1 - expf(-sq_r / SQ_E));
+    float vel_kernel_factor = k_factor(sq_r);
     d.x += vel_kernel_factor * -r.y;
     d.y += vel_kernel_factor *  r.x;
 
@@ -57,7 +63,7 @@ update_tile(float4 p, float3 d) {
         ++counter;
     }
 
-    d.z *= VISCOSITY * (1 / SQ_E);
+    d.z *= VISCOSITY * ONE_OVER_SQ_E;
     return d;
 }
 
@@ -88,16 +94,18 @@ integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_pa
     unsigned pid = blockIdx.x * blockDim.x + threadIdx.x;
 
     // fetch particle from global memory
-    float4 p = old_particles[pid];
+    if (pid < nr_particles) {
+        float4 p = old_particles[pid];
 
-    // compute velocity and derivative of circulation for particle p
-    float3 derivatives = eval_derivatives(p, old_particles, nr_particles);
+        // compute velocity and derivative of circulation for particle p
+        float3 derivatives = eval_derivatives(p, old_particles, nr_particles);
 
-    // convect particle and copy it to global memory
-    p.x += derivatives.x * dt;
-    p.y += derivatives.y * dt;
-    p.z += derivatives.z * dt;
-    new_particles[pid] = p;
+        // convect particle and copy it to global memory
+        p.x += derivatives.x * dt;
+        p.y += derivatives.y * dt;
+        p.z += derivatives.z * dt;
+        new_particles[pid] = p;
+    }
 }
 
 
@@ -118,7 +126,7 @@ void solve(std::vector<particle> particles, float dt, unsigned nr_iterations) {
     thrust::copy(ps_h.begin(), ps_h.end(), ps_d[current_read].begin());
 
     for (unsigned i = 0; i < nr_iterations; ++i) {
-        integrate<<<N/256, 256>>>(dt, N,
+        integrate<<<std::ceil(N / T), T, T * sizeof(float4)>>>(dt, N,
                 (float4*) thrust::raw_pointer_cast(&ps_d[current_read]),
                 (float4*) thrust::raw_pointer_cast(&ps_d[current_write]));
         cudaThreadSynchronize();
