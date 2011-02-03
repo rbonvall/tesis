@@ -184,11 +184,12 @@ in block~\(b = \lfloor p/T \rfloor\).
   \caption[Work distribution among threads.]%
     {Work distribution among threads and thread blocks
     for a system of \protect{\(N = 45\)} particles and
-    a grid of \protect{\(B = 6\)} blocks of \(T = \lceil N/B \rceil = 8\) threads.
-    Each small square represents an interaction between two particles.
+    a grid of \protect{\(B = 6\)} blocks of \(T = 8\) threads.
+    Each small cell represents an interaction between two particles.
+    Waved lines show how threads sequentially compute
+    and add up interactions along a row.
     Dashed lines show where threads synchronize
     and load a new set of particles into shared memory.
-    Waved lines show how threads sequentially compute interactions along a row.
     The rectangles in block 4 show the interactions associated
     to each of the device kernels being called.
   }
