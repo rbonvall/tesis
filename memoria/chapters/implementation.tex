@@ -84,33 +84,29 @@ in block~\(b = \lfloor p/T \rfloor\).
   \centering
   \begin{tikzpicture}[scale=.2, yscale=-1, font=\small]
 
-    \def\nrbodies{64}     \def\lastbody{63}
-    \def\nrblocks{8}      \def\lastblock{7}
-    \def\nrtiles{8}       \def\lasttile{7}
+    \def\nrbodies{45}     \def\lastbody{44}
+    \def\nrblocks{6}      \def\lastblock{5}
+    \def\nrtiles{6}       \def\lasttile{5}
     \def\nrblockbodies{8} \def\lastblockbody{7}
-
-    %\def\nrbodies{42}     \def\lastbody{41}
-    %\def\nrblocks{7}      \def\lastblock{6}
-    %\def\nrtiles{7}       \def\lasttile{6}
-    %\def\nrblockbodies{6} \def\lastblockbody{5}
 
     \foreach \block in {0,1,...,\lastblock} {
       %\def\ybot{9 * \block}
       \pgfmathsetmacro{\ybot}{(1 + \nrblockbodies) * \block}
       \draw[innergrid] (0, \ybot) grid      ++(\nrbodies, \nrblockbodies);
       \draw[tile]      (0, \ybot) rectangle ++(\nrbodies, \nrblockbodies);
-      \draw (1 + \nrbodies, \ybot + \nrblockbodies / 2)
+      %\draw (1 + \nrbodies, \ybot + \nrblockbodies / 2)
+      \draw (-11, \ybot + \nrblockbodies / 2)
           node[anchor=west] { block $\block$ };
 
       \foreach \syncpoint in {1,...,\lasttile}
-        \draw[sync] (\nrtiles * \syncpoint, \ybot) -- ++(0, \nrblockbodies);
+        \draw[sync] (\nrblockbodies * \syncpoint, \ybot) -- ++(0, \nrblockbodies);
     }
 
-    \def\block{2}
-    \foreach \k in {0,...,3}
-      \drawthread{thread}{\block}{\k}{43};
-    \foreach \k in {4,...,\lastblockbody}
-      \drawthread{thread}{\block}{\k}{42};
+    %\def\block{2}
+    %\foreach \k in {0,...,3}
+    %  \drawthread{thread}{\block}{\k}{43};
+    %\foreach \k in {4,...,\lastblockbody}
+    %  \drawthread{thread}{\block}{\k}{42};
 
     \def\block{1}
     \foreach \k in {0,1}
@@ -118,27 +114,28 @@ in block~\(b = \lfloor p/T \rfloor\).
     \foreach \k in {2,...,\lastblockbody}
       \drawthread{thread}{\block}{\k}{11};
 
-    \def\block{3}
+    \def\block{2}
     \foreach \k in {0,...,\lastblockbody}
       \drawthread{thread}{\block}{\k}{24.5};
 
     \def\block{4}
-    \def\to{45}
+    \def\to{34}
     \foreach \k in {0,1,3,4,...,\lastblockbody}
       \drawthread{thread, gray}{\block}{\k}{\to};
 
     % draw kernel calls
+    \def\currentx{34}
+    \pgfmathsetmacro{\tilestart}{floor(\currentx / \nrblockbodies) * \nrblockbodies}
     \pgfmathsetmacro{\ybot}{(\nrblockbodies + 1) * \block}
-    \def\currentx{44}
     \def\currenty{\ybot + 2}
     \draw[kernelcall=brown, pattern=north east lines]
-      (   0, \currenty - .2) rectangle ++(64, 1.4);
+      (   0, \currenty - .2) rectangle ++(\nrbodies, 1.4);
     \draw[kernelcall=blue!50!black, pattern=north west lines]
-      (  40, \currenty - .1) rectangle ++( 8, 1.2);
+      (\tilestart, \currenty - .1) rectangle ++(\nrblockbodies, 1.2);
     \draw[kernelcall=orange, fill]
       (\currentx, \currenty) rectangle ++( 1, 1);
     \node[anchor=base] (interactionanchor) at (\currentx + 0.5, \currenty + 1.0) {};
-    \node[anchor=base] (tileanchor)        at (\currentx - 2.5, \currenty + 1.1) {};
+    \node[anchor=base] (tileanchor)        at (\currentx + 2.5, \currenty + 1.1) {};
     \node[anchor=base] (evalanchor)        at (\currentx - 8.5, \currenty + 1.2) {};
 
     \node[imglabel] (interactionlabel) at (49.5, \currenty +  4.5) {\textit{interaction}};
@@ -172,21 +169,25 @@ in block~\(b = \lfloor p/T \rfloor\).
     \draw[dotted, very thick] (plabel) -- (cellanchor.base);
     \draw[dotted, very thick] (qlabel) -- (cellanchor.base);
 
-    \foreach \block in {1,2,3,4} {
+    \foreach \block in {1,2,4} {
       \pgfmathsetmacro{\ybot}{(1 + \nrblockbodies) * \block}
       \foreach \thread in {0,...,\lastblockbody} {
         \node[font=\tiny, anchor=east] at (0, .5 + \ybot + \thread) {\thread};
       }
     }
 
+    \def\nridlethreads{3}
+    \fill[pattern=north east lines] (0, 50) rectangle ++(\nrbodies, 3);
+    \node[imglabel, anchor=center] (idlelabel) at (\nrbodies / 2, 51.5) {idle threads};
+
   \end{tikzpicture}
   \caption[Work distribution among threads.]%
     {Work distribution among threads and thread blocks
-    for a system of \protect{\(N = 64\)} particles and
-    a grid of \protect{\(B = 8\)} thread blocks of \(T = N/B = 8\) threads.
+    for a system of \protect{\(N = 45\)} particles and
+    a grid of \protect{\(B = 6\)} blocks of \(T = \lceil N/B \rceil = 8\) threads.
     Each small square represents an interaction between two particles.
     Dashed lines show where threads synchronize
-    and fetch a new set of particles into shared memory.
+    and load a new set of particles into shared memory.
     Waved lines show how threads sequentially compute interactions along a row.
     The rectangles in block 4 show the interactions associated
     to each of the device kernels being called.
