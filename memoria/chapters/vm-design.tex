@@ -190,7 +190,7 @@ The numerical quadrature of the integral
 yields its discrete form for each particle:
 \begin{equation}
   \label{eq:pse}
-  Δ_ε ω_p = νε^{-2} \sum_q v_q [ω_q^h - ω_p^h]\cdot η_ε(\x_q - \x_p),
+  Δ_ε ω_p = ε^{-2} \sum_q v_q [ω_q^h - ω_p^h]\cdot η_ε(\x_q - \x_p),
 \end{equation}
 where \(v_q\) is the volume of particle~\(q\).
 All particles represent a initial cell of volume \(v_p = h^2\),
@@ -201,7 +201,7 @@ Since circulation is related to vorticity by \(α_p = v_p ω_p\),
 the PSE equation can be expressed in terms of circulation as:
 \begin{equation}
   \label{eq:pse-circ}
-  Δ_ε α_p = νε^{-2} \sum_q [α_q^h - α_p^h]\cdot η_ε(\x_q - \x_p).
+  Δ_ε α_p = ε^{-2} \sum_q [α_q^h - α_p^h]\cdot η_ε(\x_q - \x_p).
 \end{equation}
 
 Just like for the convection stage,
