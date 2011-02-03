@@ -196,7 +196,7 @@ __global__ void vector_add(float a[], float b[], float c[]) {
 }
 \end{verbatim}
 Each thread will fetch one element of each of the input arrays, add them,
-and store the sum in the corresponding component of the result.
+and store the sum in the corresponding component of the result array.
 
 The \verb+vector_add+ kernel can be executed with any grid configuration,
 provided that the arrays have been properly allocated and initialized.
@@ -253,9 +253,9 @@ The basic workflow of a simple CUDA application is the following:
 
 During a kernel launch,
 accesses to global memory should be kept to a minimum,
-so the following workflow is typical for each thread of a block:
+so the following workflow is typical for each thread in a block:
 \begin{itemize}
-  \item load data from global memory to shared memory;
+  \item load some data from global memory into shared memory;
   \item synchronize with the other threads of the block;
   \item operate on the data;
   \item synchronize again;
@@ -266,9 +266,7 @@ In addition to these steps,
 several design decisions have to be made
 in order to develop for peak performance.
 The strategies around which these decisions revolve are:
-\begin{itemize}
-  \item maximizing parallel execution,
-  \item optimizing memory usage to achieve maximum bandwidth, and
-  \item optimizing instruction usage to achieve maximum throughput.
-\end{itemize}
+maximizing parallel execution,
+optimizing memory usage to achieve maximum bandwidth, and
+optimizing instruction usage to achieve maximum throughput.
 
