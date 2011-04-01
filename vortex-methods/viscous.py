@@ -45,9 +45,7 @@ def gaussian_bs_kernel_factor(r2, e2):
 
 # K(r²)
 def bs_kernel_factor(r2):
-    return 1 / (2 * pi * r2)
-
-# η_ε(r²)
+    return 1 / (2 * pi * r2) # η_ε(r²)
 diffusion_kernel = gaussian_cutoff
 
 
@@ -115,8 +113,8 @@ def main():
         y += v * dt
 
         # diffusion
-        #dcirc = eval_circulation_change(x, y, circ, nu, e ** 2)
-        #circ += dcirc * dt
+        dcirc = eval_circulation_change(x, y, circ, nu, e ** 2)
+        circ += dcirc * dt
 
         if iteration % 10 == 0:
             err2 = squared_velocity_errors(x, y, u, v, t, vortex)
@@ -144,11 +142,13 @@ def main():
     pylab.show()
 
 
-def test_velocity_evaluation():
+def test():
     x    = array([-2e-2,  1e-2, 2e-2])
     y    = array([ 1e-2, -1e-2, 2e-2])
     circ = array([ 1e-3,  1e-3, 2e-3])
     e = 3e-2
+
+    # test velocity
 
     # expected results with precision 1e-5
     u   = array([-0.28e-3, 8.28e-3, -4.00e-3])
@@ -164,7 +164,11 @@ def test_velocity_evaluation():
         print 'u obtained: ', u_o
         print 'v obtained: ', v_o
 
+    # test diffusion
+
+
+
 if __name__ == '__main__':
-    test_velocity_evaluation()
+    test()
     main()
 
