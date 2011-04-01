@@ -1,7 +1,7 @@
 #include "cuda-integrate.hpp"
 #include <algorithm>
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #    include "util/cuPrintf.cu"
 #    include <iostream>
@@ -60,6 +60,16 @@ void gpu_init(std::vector<particle>& particles) {
     MSG("Particle array copied to GPU");
     current_read = 0;
     current_write = 1;
+}
+
+void gpu_get_particles(std::vector<particle>& particles,
+                       std::vector<particle>& velocities) {
+
+    unsigned mem_size = nr_particles * sizeof(float);
+    particles.reserve(nr_particles);
+    velocities.reserve(nr_particles);
+    cudaMemcpy(&particles[0],  part_dev[current_read], mem_size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(&velocities[0], vel_dev[current_read],  mem_size, cudaMemcpyDeviceToHost);
 }
 
 void gpu_finalize() {
@@ -122,7 +132,7 @@ __device__ float2 biot_savart_law(float4 part, float4* parts, unsigned nr_partic
 
     int current_tile = b;
     float2 u = {0.0f, 0.0f};
-#if 0
+
     for (int tile_count = 0; tile_count < nr_blocks; ++tile_count) {
 
         // fetch particle from global memory
@@ -137,7 +147,6 @@ __device__ float2 biot_savart_law(float4 part, float4* parts, unsigned nr_partic
 
         current_tile = WRAP(current_tile + 1, nr_blocks);
     }
-#endif
 
     return u;
 }
