@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
     //}
 
     std::vector<particle> particles;
+    std::vector<particle> velocities;
     read_particles(particles);
     float x, y, circ, u, v;
 
@@ -35,6 +36,8 @@ int main(int argc, char *argv[]) {
         double start = omp_get_wtime();
         vm_integrate(time_step, 1, 2);
         double time = omp_get_wtime() - start;
+
+        //gpu_get_particles(particles, velocities);
 
         t += time_step;
     }
