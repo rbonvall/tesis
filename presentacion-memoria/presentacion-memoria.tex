@@ -162,4 +162,162 @@ using 2-D Vortex Methods}
     \end{itemize}
   \end{frame}
 
+  \begin{frame}
+    \frametitle{Velocity evaluation}
+    \begin{align}
+      ω^h_ε  &= \sum_p α_p  ζ_ε(\x - \x^h_p) \\
+      \vel^h &= \sum_p α_p \K_ε(\x - \x^h_p)
+    \end{align}
+    \begin{itemize}
+      \item \(O(N^2)\) particle interactions
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{}
+    \begin{figure}
+      \centering
+      \tikzstyle{vm-block}=[draw]
+      \tikzstyle{vm-arrow}=[->,thick]
+      \tikzstyle{vm-block-o}=[draw,fill=blue!15]
+      \begin{tikzpicture}[node distance=5ex]
+        \node[vm-block]   (disc)                 {Discretization};
+        \node[vm-block]   (vel)  [below of=disc] {Velocity evaluation};
+        \node[vm-block]   (conv) [below of=vel]  {Convection};
+        \node[vm-block]   (diff) [below of=conv] {Diffusion};
+        \node[vm-block-o] (bc)   [below of=diff] {Satisfaction of BCs};
+        \node[vm-block-o] (spa)  [below of=bc]   {Spatial adaption};
+        \node[vm-block-o] (fs)   [right of=vel, node distance=12em] {Fast summation};
+        \node[vm-block-o] (mf)   [right of=bc,  node distance=12em] {Measurement of forces};
+        \draw[vm-arrow] (disc) to (vel);
+        \draw[vm-arrow] (vel)  to (conv);
+        \draw[vm-arrow] (conv) to (diff);
+        \draw[vm-arrow] (diff) to (bc);
+        \draw[vm-arrow] (bc)   to (spa);
+        \draw[vm-arrow, dashed] (fs)   to (vel);
+        \draw[vm-arrow, dashed] (bc)   to (mf);
+        \draw[vm-arrow] (spa.west) to [out=180,in=180] (vel.west);
+      \end{tikzpicture}
+      \label{fig:vm-blocks}
+      \caption[Builiding blocks of a viscous Vortex Method]{
+        Basic building blocks of a viscous Vortex Method implementation,
+        as described in [Barba04].}
+    \end{figure}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Lamb-Oseen vortex}
+    \begin{equation}
+      ω(r, t) = \frac{Γ_0}{4πνt} \exp(-r^2/4νt)
+    \end{equation}
+    \includegraphics[scale=.45]{lamb-oseen-vorticity.pdf}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Lamb-Oseen vortex velocity field}
+    \begin{align}
+      u_\theta(r, t) &= \frac{Γ_0}{2πr} \bigl(1 - \exp(-r^2/4νt)\bigr) \\
+      \vec{u} &= (-y, x)\cdot u_\theta(r, t)/r
+    \end{align}
+    \includegraphics[scale=.30]{lamb-oseen-velocity.pdf}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Wingtip vortices as Lamb-Oseen vortices}
+    \includegraphics[scale=.45]{wingtip-vortices.png}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Trajectory integration}
+    \begin{itemize}
+      \item Velocity evaluation:
+        \begin{equation}
+          \vel^h = \sum_p α_p \K_ε(\x - \x^h_p)
+        \end{equation}
+      \item Time-stepping:
+        \begin{equation}
+          \x_p^{(n + 1)} = \x_p^{(n)} + \vel_p^{(n)}\cdot δt
+        \end{equation}
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Diffusion model}
+    \begin{itemize}
+      \item Diffusion equation:
+        \begin{equation}
+          \od{ω^h_p}{t} = ν\,Δω^h_p
+        \end{equation}
+      \item Particle-Strength Exchange:
+        \begin{align}
+          Δ_ε ω(\x) &= ε^{-2} \int [ω(\x') - ω(\x)]\cdot η_ε(\x' - \x)\,d\x' \\
+          Δ_ε ω_p &= ε^{-2} \sum_q v_q [ω_q^h - ω_p^h]\cdot η_ε(\x_q - \x_p) \\
+          Δ_ε α_p &= ε^{-2} \sum_q [α_q^h - α_p^h]\cdot η_ε(\x_q - \x_p) \\
+          \dot{α}_p &= νε^{-2} \sum_q [α_q^h - α_p^h]\cdot η_ε(\x_q - \x_p)
+        \end{align}
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Diffusion integration}
+    \begin{itemize}
+      \item Evaluation of \(\dot{α}\):
+        \begin{equation}
+          \dot{α}_p = νε^{-2} \sum_q [α_q^h - α_p^h]\cdot η_ε(\x_q - \x_p)
+        \end{equation}
+      \item Time-stepping:
+        \begin{equation}
+          α_p^{(n + 1)} = α_p^{(n)} + \dot{α}_p^{(n)}\cdot δt
+        \end{equation}
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{GPU solver}
+    Problem to be solved:
+    \begin{align}
+      x_p^{(n + 1)} &= x_p^{(n)} + u_p^{(n)}\, δt, \\
+      y_p^{(n + 1)} &= y_p^{(n)} + v_p^{(n)}\, δt, \\
+      α_p^{(n + 1)} &= α_p^{(n)} + \dot{α}_p^{(n)}\, δt.
+    \end{align}
+    with
+    \begin{align}
+        %\label{eq:evaluation}
+        (u_p, v_p) &= \sum_q \vec{U}_{pq},   & \vec{U}_{pq} &= α_p \K_ε(\x_p - \x_q) \\
+        \dot{α}_p  &= νε^{-2} \sum_q A_{pq}, &       A_{pq} &= [α_q - α_p]\,η_ε(\x_p - \x_q).
+    \end{align}
+  \end{frame}
+
+  \begin{frame}
+    \centering
+    \includegraphics[scale=.7, viewport=120 200 800 650]{work.pdf}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Work distribution}
+    \begin{itemize}
+      \item one particle \(\longrightarrow\) one thread
+      \item each thread evaluates all the terms
+        of the formulas for the derivatives
+        for one particle
+      \item \(N^2\) interactions \(\longrightarrow\)
+        \(N\) threads \(\times\) \(N\) particle-particle evaluations
+      \item synchronization and data fetch between tiles
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Memory management}
+    \begin{itemize}
+      \item Global array of particles
+      \item \((x_p, y_p, α_p)\) stored as \texttt{float4}
+        \begin{itemize}
+          \item exploits coalescing and alignment
+        \end{itemize}
+      \item Subset of particles
+        are loaded to shared memory
+        at synchronization points
+    \end{itemize}
+  \end{frame}
+
 \end{document}
