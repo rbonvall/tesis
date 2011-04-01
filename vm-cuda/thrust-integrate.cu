@@ -50,35 +50,32 @@ particle_interaction(float3 d, float4 p, float4 q) {
 
 
 __device__ float3
-update_tile(float4 p, float3 d) {
+update_tile(float4 p, float3 derivatives) {
     extern __shared__ float4 shared_particles[];
-
-    unsigned long i = 0;
-    unsigned int counter = 0;
 
 #   define SHARED(i) (shared_particles[(i) + blockDim.x * threadIdx.x])
 
+    unsigned long i = 0;
+    unsigned int counter = 0;
     while (counter < blockDim.x) {
-        d = particle_interaction(d, p, SHARED(i++));
+        derivatives = particle_interaction(derivatives, p, SHARED(i++));
         ++counter;
     }
 
-    d.z *= VISCOSITY * ONE_OVER_SQ_E;
-    return d;
+    derivatives.z *= VISCOSITY * ONE_OVER_SQ_E;
+    return derivatives;
 }
 
 
 __device__ float3
 eval_derivatives(float4 p, float4 *particles, float N) {
-    unsigned pid = blockIdx.x * blockDim.x + threadIdx.x;
-
-    unsigned num_tiles = 0; // TODO
-
     extern __shared__ float4 shared_particles[];
+    unsigned const t = threadIdx.x;
+    unsigned num_tiles = std::ceil(N / T);
 
     float3 derivatives = make_float3(0.0f, 0.0f, 0.0f);
     for (int tile = 0; tile < num_tiles; ++tile) {
-        shared_particles[threadIdx.x] = particles[0]; // TODO
+        shared_particles[t] = particles[tile * T + t];
         __syncthreads();
 
         derivatives = update_tile(p, derivatives);
@@ -100,10 +97,12 @@ integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_pa
         // compute velocity and derivative of circulation for particle p
         float3 derivatives = eval_derivatives(p, old_particles, nr_particles);
 
-        // convect particle and copy it to global memory
+        // integrate trajectories and circulation
         p.x += derivatives.x * dt;
         p.y += derivatives.y * dt;
         p.z += derivatives.z * dt;
+
+        // put the particle back in global memory
         new_particles[pid] = p;
     }
 }
