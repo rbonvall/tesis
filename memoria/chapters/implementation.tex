@@ -119,7 +119,7 @@ in block~\(b = \lfloor p/T \rfloor\).
       \drawthread{thread}{\block}{\k}{24.5};
 
     \def\block{4}
-    \def\to{34}
+    \def\to{35}
     \foreach \k in {0,1,3,4,...,\lastblockbody}
       \drawthread{thread, gray}{\block}{\k}{\to};
 
@@ -138,15 +138,15 @@ in block~\(b = \lfloor p/T \rfloor\).
     \node[anchor=base] (tileanchor)        at (\currentx + 2.5, \currenty + 1.1) {};
     \node[anchor=base] (evalanchor)        at (\currentx - 8.5, \currenty + 1.2) {};
 
-    \node[imglabel] (interactionlabel) at (49.5, \currenty +  4.5) {\textit{interaction}};
-    \node[imglabel] (tilelabel)        at (49.5, \currenty +  7.5) {\textit{tile\_computation}};
-    \node[imglabel] (evallabel)        at (49.5, \currenty + 10.5) {\textit{evaluation}};
+    \node[imglabel] (interactionlabel) at (49.5, \currenty +  4.5) {\verb!particle_interaction!};
+    \node[imglabel] (tilelabel)        at (49.5, \currenty +  7.5) {\verb!update_tile!};
+    \node[imglabel] (evallabel)        at (49.5, \currenty + 10.5) {\verb!eval_derivatives!};
 
     \draw[kernelarrow, orange]        (interactionanchor.base) to (interactionlabel);
     \draw[kernelarrow, blue!50!black] (tileanchor.base)        to (tilelabel);
     \draw[kernelarrow, brown]         (evalanchor.base)        to (evallabel);
 
-    \drawthread{thread}{\block}{2}{45};
+    \drawthread{thread}{\block}{2}{\to};
 
     \def\examplex{21}
     \def\exampley{5}
@@ -188,7 +188,7 @@ in block~\(b = \lfloor p/T \rfloor\).
     Each small cell represents an interaction between two particles.
     Waved lines show how threads sequentially compute
     and add up interactions along a row.
-    Dashed lines show where threads synchronize
+    Vertical dashed lines show where threads synchronize
     and load a new set of particles into shared memory.
     The rectangles in block 4 show the interactions associated
     to each of the device kernels being called.
@@ -200,8 +200,7 @@ Figure~\ref{fig:nbody-tiles} shows a schematic representation
 of the distribution of work among threads.
 All of the~\(N^2\) particle interactions are represented
 as cells in the finer grid.
-Each thread computes sequentially the interactions
-along a row.
+Each thread computes interactions sequentially along a row.
 In this example, blocks 1 through 4 are already in execution,
 while the others have not started yet.
 
@@ -228,8 +227,69 @@ as values of type~\texttt{float4} instead of~\texttt{float3}
 whose fourth field is kept unused.
 
 
-
 \section{Kernel implementation}
 \label{sec:kernel-implementation}
 
+The main global kernel is called \verb!integrate!.
 
+The pseudocode is as follows:
+
+\begin{verbatim}
+GLOBAL KERNEL integrate(dt, N, old_particles, new_particles)
+    p = id of particle associated to current thread
+    IF p < N THEN
+        particle = old_particles[p]
+        derivatives = eval_derivatives(particle, old_particles, N)
+        particle = particle + derivatives * dt
+        new_particles[p] = particle
+    END IF
+END KERNEL
+\end{verbatim}
+
+\begin{verbatim}
+KERNEL eval_derivatives(current_particle, particles, N)
+    shared_particles = shared array of particles
+    t = current thread id
+    num_tiles = ceiling(N / T)
+
+    derivatives = (0, 0, 0)
+    FOR tile = 0 TO num_tiles - 1 DO
+        shared_particles[t] = particles[tile * T + t]
+        synchronize()
+        derivatives = update_tile(particle, derivatives)
+        synchronize()
+    END FOR
+
+    RETURN derivatives
+END KERNEL
+\end{verbatim}
+
+\begin{verbatim}
+KERNEL update_tile(particle, derivatives)
+    shared_particles = shared array of particles
+    t = current thread id
+
+    i = 0
+    counter = 0
+    WHILE counter < block_size
+        derivatives = particle_interaction(derivatives,
+                particle,
+                shared_particles[i + block_size * t])
+        i = i + 1
+        counter = counter + 1
+    END WHILE
+
+    derivatives.z = derivatives.z * nu/e^2
+    RETURN derivatives
+END KERNEL
+\end{verbatim}
+
+\begin{verbatim}
+KERNEL particle_interaction(derivatives, p, q)
+    r = p - q
+    velocity_kernel_factor = k_factor(r^2)
+    derivatives.x += velocity_kernel_factor * -r.y
+    derivatives.y += velocity_kernel_factor *  r.x
+    derivatives.z += (q.z - p.z) * eta(r^2)
+END KERNEL
+\end{verbatim}
