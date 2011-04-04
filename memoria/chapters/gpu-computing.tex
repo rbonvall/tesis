@@ -27,14 +27,8 @@ Modern programmable GPUs are aggressively pipelined,
 multithreaded, manycore processors
 specialized in floating point calculations.
 
-The GPU delivers high throughput not by accelerating individual operations
-(which are slower than on the CPU),
-but by means of executing many threads in parallel.
-It achieves this by devoting more transistors to processing cores
-rather than data caching and flow control~\cite[\S1]{cudaprog2},
-as illustrated by figure~\ref{fig:transistors}.
-
 \begin{figure}
+  \label{fig:transistors}
   \centering
   \tikzstyle{trans-name}=[anchor=north west]
   \tikzstyle{alu}=[fill=red!80!black!30]
@@ -68,7 +62,6 @@ as illustrated by figure~\ref{fig:transistors}.
         \draw[data] (0, \y) rectangle +(0.5, -0.23);
     \end{tikzpicture}
   }
-  \label{fig:transistors}
   \caption[Comparison between CPU and GPU layout]{
     Comparison between the amount of transistors
     devoted to different functions inside a CPU and a GPU.
@@ -76,6 +69,13 @@ as illustrated by figure~\ref{fig:transistors}.
     (This picture is copied from~\cite[\S1]{cudaprog2}).
   }
 \end{figure}
+
+The GPU delivers high throughput not by accelerating individual operations
+(which are slower than on the CPU),
+but by means of executing many threads in parallel.
+It achieves this by devoting more transistors to processing cores
+rather than data caching and flow control~\cite[\S1]{cudaprog2},
+as illustrated by figure~\ref{fig:transistors}.
 
 This arrangement is what makes the GPU
 well-suited for computations

@@ -196,6 +196,12 @@ The implementation of a Vortex Blob Method requires several design decisions
 which condition its efficiency and stability,
 and its suitability for different kinds of flows.
 
+The basic stages of a Vortex Method are those shown in figure~\ref{fig:vm-blocks}.
+Each of these stages can be implemented in several different ways.
+The discussion below presents some of the alternatives that are possible,
+but it is by no means comprehensive.
+
+
 \begin{figure}
   \centering
   \tikzstyle{vm-block}=[draw]
@@ -218,19 +224,13 @@ and its suitability for different kinds of flows.
     \draw[->] (bc)   to (mf);
     \draw[->] (spa.west) to [out=180,in=180] (vel.west);
   \end{tikzpicture}
-  \label{fig:vm-blocks}
   \caption[Builiding blocks of a viscous Vortex Method]{
     Basic building blocks of a viscous Vortex Method implementation,
     as described in~\cite[\S1.2]{barba04}. Shaded blocks indicate components
     that are not mandatory, but are generally present in modern applications
     of vortex methods.}
+  \label{fig:vm-blocks}
 \end{figure}
-
-The basic stages of a Vortex Method are those shown in figure~\ref{fig:vm-blocks}.
-Each of these stages can be implemented in several different ways.
-The discussion below presents some of the alternatives that are possible,
-but it is by no means comprehensive.
-
 
 \subsection{Discretization}
 \label{ssec:discretization}
