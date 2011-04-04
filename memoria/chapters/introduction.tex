@@ -1,3 +1,136 @@
 \chapter{Introduction}
 \label{ch:introduction}
 
+Fluid dynamics is the study of fluids in motion.
+
+While being a discipline of great theoretical interest in itself,
+fluid dynamics has many industrial applications:
+fluid flow problems arise in aeronautics, meteorology,
+astrophysics, and oceanography, among many other disciplines.
+
+The equations governing fluid motion have been known
+for a couple of centuries.
+The most important ones are the Navier-Stokes equations,
+which describe the law of conservation of momentum
+for an element of volume in a viscous fluid:
+\begin{equation}
+  ρ(\vel_t + \vel\cdot∇\vel) = \text{forces per volume unit},
+\end{equation}
+where \(\vel\) is the flow velocity and
+\(ρ\) is the fluid density.
+
+Under some conditions,
+the solution of this equation can exhibit chaotic behavior
+called turbulence.
+Turbulent flows are highly irregular
+and extremely difficult to solve.
+The main contribution to turbulence
+is given by the  \(ρ\vel\cdot∇\vel\) term
+(called convective acceleration),
+that describes the effect that the geometry of the flow
+has on the fluid at a fixed time.
+The nonlinearity of this term
+is what makes the equations difficult to solve.
+
+The Navier-Stokes equations are usually supplemented
+with the mass and energy conservation laws
+and with equations of state from thermodynamics,
+in order to fully describe the flow.
+The need for these additional equations
+depends on which assumptions have been made about the flow.
+
+Since all but the simplest flow problems
+cannot be solved analytically,
+numerical methods are indispensable
+for practical applications.
+Computational fluid dynamics (CFD)
+is the branch of fluid dynamics
+that studies efficient, robust and reliable algorithms
+for solving the underlying partial differential equations.
+
+Vortex Methods are one kind of CFD methods,
+that are based on the discretization
+of the vorticity field using particles as computational elements,
+whose evolution is determined
+by the Lagrangian description of the Navier-Stokes equations.
+In the Lagrangian formulation,
+the convective acceleration term dissapears,
+so Vortex Methods bypass some of the numerical problems
+that need to be addressed explicitly in Eulerian methods.
+
+Despite Vortex Methods having been formulated several decades ago,
+their applicability for actual engineering problems was hindered
+because of the computational cost of evaluating the velocity field
+and their inability to solve viscous effects accurately.
+These difficulties have been addressed in several ways since,
+so they have become a practical alternative
+for solving incompressible flows with high Reynolds number.
+
+In general,
+fluid flow simulations are among
+the most computationally demanding numerical problems.
+As is the case
+for all High-Performance Computing applications nowadays,
+effective use of parallelism is crucial for
+simulating fluid phenomena within a reasonable time.
+In order to be practical,
+large supercomputers or computer clusters
+are usually needed for simulating the flow accurately.
+
+One of the parallel architectures
+that is currently being used as a target
+for running this kind of applications
+is the Graphics Processing Unit (GPU).
+Originally designed to be a fixed-function processor
+for accelerating stages of the graphics pipeline,
+the architecture of the GPU has evolved
+into a fully programmable array of multiprocessor,
+capable of executing hundreds of threads simultaneously.
+GPUs have been increasingly used over the last half-decade
+to accelerate general-purpose expensive computations
+because of their affordable cost and ubiquity.
+By exploiting massive parallelism,
+GPUs can achieve up to two orders of magnitud
+better performance than a CPU
+for certain applications.
+
+Programming for the GPU is different from doing it
+for ordinary processors.
+Each task has to be organized into a grid of blocks,
+that are distributed among multiprocessors.
+One block has many threads that must execute
+exactly the same instructions.
+There are several types of memory,
+each optimized for different kinds of usages
+and with different access speeds.
+Also, the developer must be aware of
+a lot more of details of the hardware,
+and this is specially true
+when programming for maximum performance.
+
+In this undergraduate thesis work,
+a parallel 2-D Vortex Method is designed
+for simulating the Lamb-Oseen vortex,
+and implemented in the CUDA programming environmentt.
+The algorithm runs entirely on the GPU,
+and simulates both the convection and the diffusion of the flow.
+
+In chapter~\ref{ch:vm},
+the theory of Vortex Methods for two-dimensional
+incompressible flows is introduced,
+along with their most important algorithmic features.
+In chapter~\ref{ch:gpu-computing},
+the architecture of the GPU is explained,
+and the programming model
+of CUDA is described.
+Chapter~\ref{ch:vm-design}
+introduces the Lamb-Oseen vortex,
+and explains the design decisions
+for the Vortex Method to be implemented.
+Chapter~\ref{ch:implementation}
+discusses the GPU implementation,
+the task distribution and the CUDA kernels.
+Chapter~\ref{ch:experiments}
+describes the experiments performed
+and presents the results.
+
