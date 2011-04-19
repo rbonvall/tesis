@@ -55,8 +55,8 @@ and of updating the particle description
 according to equations~\eqref{eq:x-integration},
 \eqref{eq:y-integration} and~\eqref{eq:a-integration}.
 
-The~\(N\) threads are grouped in \(B\)~blocks of \(T = N/B\)~threads
-(for the time being, let us assume that~\(B\mid N\)).
+The~\(N\) threads are grouped into \(B\)~blocks of \(T = N/B\)~threads
+(if~\(B\nmid N\), the last block will have some idle threads).
 All threads within a block execute concurrently
 (but not necessarily simultaneously),
 while all blocks are scheduled independent of each other
@@ -184,7 +184,7 @@ in block~\(b = \lfloor p/T \rfloor\).
     \node[imglabel, anchor=center] (idlelabel) at (\nrbodies / 2, 51.5) {idle threads};
 
   \end{tikzpicture}
-  \caption[Work distribution among threads.]%
+  \caption[Work distribution among GPU threads.]%
     {Work distribution among threads and thread blocks
     for a system of \protect{\(N = 45\)} particles and
     a grid of \protect{\(B = 6\)} blocks of \(T = 8\) threads.
@@ -193,7 +193,7 @@ in block~\(b = \lfloor p/T \rfloor\).
     and add up interactions along a row.
     Vertical dashed lines show where threads synchronize
     and load a new set of particles into shared memory.
-    The rectangles in block 4 show the interactions associated
+    The boxes in block 4 show the particle interactions associated
     to each of the device kernels being called.
   }
   \label{fig:nbody-tiles}
@@ -217,8 +217,8 @@ where each particle is described as a 3-tuple~\((x_p, y_p, α_p)\).
 
 On Nvidia GPUs,
 global memory reads are always~\emph{coalesced} (accessed in chunks)
-and \emph{aligned} to chunk boundaries\fbox{CITE}.
-Unaligned accesses imposes a performance penalty,
+and \emph{aligned} to chunk boundaries~\cite{cudaprog2}.
+Unaligned accesses impose a performance penalty,
 since more chunks must be fetched
 when data spills across boundaries.
 
@@ -229,15 +229,45 @@ as values of type~\texttt{float4} instead of~\texttt{float3}
 (records of resp.\@ four and three single-precision floating point values)
 whose fourth field is kept unused.
 
+Each thread within block \(b\)
+has a local variable with the description of the particle \(p\)
+for which it will compute \(\vel_p\) and \(\dot{α}_p\).
+
+Each block of threads has access to its own shared memory,
+that is significantly faster than global memory
+(two orders of magnitude), but also much smaller.
+In order for the particle descriptions to fit into shared memory,
+they have to be fetched in smaller blocks.
+The algorithm remains simpler if these blocks are of size \(T\),
+since then each thread can fetch one particle, and the global effect
+is that the block of threads loads the block of particles at once.
+These memory loads must be interleaved with barrier synchronizations,
+because some threads can be ahead of others, and could start computing
+on particles that the latter are assigned to fetch but have not yet.
+
+The group of particle interactions computed
+with a given block of particles that are in shared memory
+will be refered as a \emph{computational tile}.
+In figure~\ref{fig:nbody-tiles},
+tiles are delimited by dashed vertical lines
+representing synchronization and data transfer points.
 
 \section{Kernel implementation}
 \label{sec:kernel-implementation}
 
-The main global kernel is called \verb!integrate!.
+The global kernel that computes one iteration of the simulation
+is called \verb!integrate!.
+This kernel is invoked from the host CPU,
+and before its execution
+the array of particles needs to already be copied
+to the GPU's global memory.
 
-The pseudocode is as follows:
+The global kernel is accompanied by several device kernels,
+which are invoked from CUDA code, and serve mainly
+for organizing the code into smaller units.
 
-\begin{verbatim}
+The pseudocode for the \verb!integrate! kernel is the following:
+\begin{lstlisting}
 GLOBAL KERNEL integrate(dt, N, old_particles, new_particles)
     p = id of particle associated to current thread
     IF p < N THEN
@@ -247,10 +277,26 @@ GLOBAL KERNEL integrate(dt, N, old_particles, new_particles)
         new_particles[p] = particle
     END IF
 END KERNEL
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
-KERNEL eval_derivatives(current_particle, particles, N)
+This kernel is executed by each of the \(T\cdot B\) threads,
+and basically it fetches one particle from global memory,
+invokes the evaluation of the derivatives at its position,
+updates its value and puts it back into global memory.
+The global effect is that all particles are integrated
+concurrently.
+
+Two global arrays are used: one for reading particle descriptions
+computed at the previous iteration (\verb!old_particles!)
+and one to put the updated particle descriptions (\verb!new_particles!).
+After each iteration, these arrays must be swapped.
+
+The actual evaluation is started by the device kernel
+\verb!eval_derivatives!, that is described
+by the following pseudocode:
+
+\begin{lstlisting}
+DEVICE KERNEL eval_derivatives(current_particle, particles, N)
     shared_particles = shared array of particles
     t = current thread id
     num_tiles = ceiling(N / T)
@@ -265,34 +311,54 @@ KERNEL eval_derivatives(current_particle, particles, N)
 
     RETURN derivatives
 END KERNEL
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
-KERNEL update_tile(particle, derivatives)
+\verb!eval_derivatives! is called once for each particle.
+At the block level,
+its effect is that
+blocks of particles are loaded into shared memory
+and a computational tile is executed,
+and this is done iteratively until all the interactions are evaluated
+for the particles associated to its threads.
+
+This \emph{read-synchronize-compute-synchronize} loop
+is a very common pattern in GPU programming
+when the algorithm operates on data in a blockwise fashion.
+
+The \verb!update_tile! device kernel
+computes one tile
+with the data that is already loaded into shared memory:
+\begin{lstlisting}
+DEVICE KERNEL update_tile(particle, derivatives)
     shared_particles = shared array of particles
     t = current thread id
 
     i = 0
-    counter = 0
     WHILE counter < block_size
-        derivatives = particle_interaction(derivatives,
-                particle,
-                shared_particles[i + block_size * t])
+        derivatives = particle_interaction(derivatives, particle,
+                                 shared_particles[i + block_size * t])
         i = i + 1
-        counter = counter + 1
     END WHILE
 
     derivatives.z = derivatives.z * nu/e^2
     RETURN derivatives
 END KERNEL
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
-KERNEL particle_interaction(derivatives, p, q)
+Finally, the computation of the interaction
+between particles \(p\) and \(q\)
+is done by the \verb!particle_interaction! device kernel:
+
+\begin{lstlisting}
+DEVICE KERNEL particle_interaction(derivatives, p, q)
     r = p - q
     velocity_kernel_factor = k_factor(r^2)
     derivatives.x += velocity_kernel_factor * -r.y
     derivatives.y += velocity_kernel_factor *  r.x
     derivatives.z += (q.z - p.z) * eta(r^2)
 END KERNEL
-\end{verbatim}
+\end{lstlisting}
+where \verb!k_factor! and \verb!eta! are device kernels
+evaluating the scalar part of \(\K_ε\) and \(η_ε\),
+respectively.
+
