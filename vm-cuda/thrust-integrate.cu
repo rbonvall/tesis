@@ -113,7 +113,8 @@ integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_pa
 }
 
 
-void solve(std::vector<particle> particles, float dt, unsigned nr_iterations) {
+void solve(std::vector<particle>& particles, std::vector<particle>& derivatives,
+        float dt, unsigned nr_iterations) {
     unsigned N = particles.size();
 
     thrust::host_vector<float4> ps_h(N);
