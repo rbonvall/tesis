@@ -32,7 +32,7 @@ init: init.o vm.o
 analytical-vel: analytical-vel.o vm.o
 vel-eval: vel-eval.o vm.o
 integrate: integrate.o vm.o
-integrate-gpu: cuda-integrate.o vm.o
+integrate-gpu: thrust-integrate.o vm.o
 
 thrust-integrate.o: thrust-integrate.cu
 	$(NVCC) $(NVCCFLAGS) $(INCLUDEFLAGS) $< -c -o $@
