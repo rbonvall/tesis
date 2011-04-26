@@ -86,8 +86,9 @@ eval_derivatives(float4 p, float4 *particles, float N) {
 }
 
 
+template <bool get_derivatives>
 __global__ void
-integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_particles) {
+integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_particles, float4 *new_derivatives) {
     unsigned pid = blockIdx.x * blockDim.x + threadIdx.x;
 
     // fetch particle from global memory
@@ -104,6 +105,10 @@ integrate(float dt, unsigned nr_particles, float4 *old_particles, float4 *new_pa
 
         // put the particle back in global memory
         new_particles[pid] = p;
+
+        if (get_derivatives) {
+            new_derivatives[pid] = make_float4(derivatives.x, derivatives.y, derivatives.z, 0.0f);
+        }
     }
 }
 
@@ -125,9 +130,11 @@ void solve(std::vector<particle> particles, float dt, unsigned nr_iterations) {
     thrust::copy(ps_h.begin(), ps_h.end(), ps_d[current_read].begin());
 
     for (unsigned i = 0; i < nr_iterations; ++i) {
-        integrate<<<std::ceil(N / T), T, T * sizeof(float4)>>>(dt, N,
+        unsigned nr_blocks = static_cast<unsigned>(std::ceil(N / T));
+        integrate<false><<<nr_blocks, T, T * sizeof(float4)>>>(dt, N,
                 (float4*) thrust::raw_pointer_cast(&ps_d[current_read]),
-                (float4*) thrust::raw_pointer_cast(&ps_d[current_write]));
+                (float4*) thrust::raw_pointer_cast(&ps_d[current_write]),
+                NULL);
         cudaThreadSynchronize();
 
         std::swap(current_read, current_write);
