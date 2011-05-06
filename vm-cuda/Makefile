@@ -2,7 +2,7 @@ NVCC = nvcc
 CC = g++
 CXXFLAGS = -Wall $(INCLUDEFLAGS)
 
-ifeq ($(shell hostname),gp01)
+ifeq ($(shell hostname | cut -d. -f1),gp01)
     BOOST = ~/codigo/boost_1_42_0
     BOOSTHEADERS = $(BOOST)
     BOOSTLIB = $(BOOST)/stage/lib/
