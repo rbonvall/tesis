@@ -1,7 +1,7 @@
 #include <iostream>
 #include "vm.hpp"
 #include "options.hpp"
-#include "cuda-integrate.hpp"
+#include "thrust-integrate.h"
 #include <boost/foreach.hpp>
 #include <omp.h>
 #include <vector>
@@ -9,41 +9,20 @@
 int main(int argc, char *argv[]) {
     lamb_oseen_options ops(argc, argv);
 
-    //std::vector<float> x, y, circ, u, v;
-    //float xp, yp, circp, up, vp;
-    //while (std::cin >> xp >> yp >> circp >> up >> vp) {
-    //    x.push_back(xp);
-    //    y.push_back(yp);
-    //    circ.push_back(circp);
-    //    // ignore up and vp
-    //}
-
     std::vector<particle> particles;
-    std::vector<particle> velocities;
+    std::vector<particle> derivatives;
     read_particles(particles);
-    float x, y, circ, u, v;
 
-    gpu_init(particles);
-    std::cout << "Particles copied to GPU" << std::endl;
+    double start = omp_get_wtime();
+    float time_step = 0.01;
+    unsigned nr_iterations=100;
+    solve(particles, derivatives, time_step, nr_iterations);
+    double time = omp_get_wtime() - start;
 
-    float core_size = 2 * ops.h;
-    float t = ops.t0, time_step = 0.01;
-    for (unsigned iteration = 0; iteration < 100; ++iteration) {
-        std::cout << "##########################" << std::endl;
-        std::cout << "### ITERATION " << iteration << std::endl;
-        std::cout << "# t =  " << t << std::endl;
-
-        double start = omp_get_wtime();
-        vm_integrate(time_step, 1, 2);
-        double time = omp_get_wtime() - start;
-
-        //gpu_get_particles(particles, velocities);
-
-        t += time_step;
-    }
-
-    gpu_finalize();
-
+    std::cout << "Time step: " << time_step << std::endl;
+    std::cout << "Nr.iterations: " << nr_iterations << std::endl;
+    std::cout << "Nr.particles: " << particles.size() << std::endl;
+    std::cout << "Time: " << time << " seconds" << std::endl;
 
 }
 
