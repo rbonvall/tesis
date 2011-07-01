@@ -1,4 +1,4 @@
-\documentclass[12pt,english]{beamer}
+\documentclass[12pt,english,dvipsnames]{beamer}
 \usepackage[mathletters]{ucs}
 \usepackage[utf8x]{inputenc}
 \usepackage{babel}
@@ -86,6 +86,22 @@ using 2-D Vortex Methods}
   \end{frame}
 
   \begin{frame}
+    \frametitle{Turbulence}
+    \begin{center}
+      \includegraphics[scale=.9]{flow-past-sphere.jpg}
+    \end{center}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Vorticity}
+    \begin{center}
+      \includegraphics[scale=.6]{cylinder-vorticity.jpg}
+    \end{center}
+
+    \[ \mathbold\omega = ∇\times\vel = \frac{dΓ}{dA} \]
+  \end{frame}
+
+  \begin{frame}
     \frametitle{2-D Vortex Methods}
     \begin{itemize}
       \item Incompressible flow:
@@ -130,7 +146,7 @@ using 2-D Vortex Methods}
           \vel(\x, t) &=
             \int\bigl(\curl\vec{G}\bigr)(\x - \x')\,ω(\x', t)\,d\x' \\
           \vel &= \K * ω,
-            \quad\text{where \(\textstyle\K(x, y) = -\frac{1}{2π\norm{\x}}(-y, x)\)}
+            \quad\text{where \(\textstyle\K(x, y) = \frac{1}{2π\norm{\x}^2}(-y, x)\)}
         \end{align}
     \end{itemize}
   \end{frame}
@@ -163,14 +179,25 @@ using 2-D Vortex Methods}
   \end{frame}
 
   \begin{frame}
-    \frametitle{Velocity evaluation}
+    \frametitle{Lamb-Oseen vortex}
+    \begin{equation}
+      ω(r, t) = \frac{Γ_0}{4πνt} \exp(-r^2/4νt)
+    \end{equation}
+    \includegraphics[scale=.45]{lamb-oseen-vorticity.pdf}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Lamb-Oseen vortex velocity field}
     \begin{align}
-      ω^h_ε  &= \sum_p α_p  ζ_ε(\x - \x^h_p) \\
-      \vel^h &= \sum_p α_p \K_ε(\x - \x^h_p)
+      u_\theta(r, t) &= \frac{Γ_0}{2πr} \bigl(1 - \exp(-r^2/4νt)\bigr) \\
+      \vec{u} &= (-y, x)\cdot u_\theta(r, t)/r
     \end{align}
-    \begin{itemize}
-      \item \(O(N^2)\) particle interactions
-    \end{itemize}
+    \includegraphics[scale=.30]{lamb-oseen-velocity.pdf}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Wingtip vortices as Lamb-Oseen vortices}
+    \includegraphics[scale=.45]{wingtip-vortices.png}
   \end{frame}
 
   \begin{frame}
@@ -206,25 +233,11 @@ using 2-D Vortex Methods}
   \end{frame}
 
   \begin{frame}
-    \frametitle{Lamb-Oseen vortex}
-    \begin{equation}
-      ω(r, t) = \frac{Γ_0}{4πνt} \exp(-r^2/4νt)
-    \end{equation}
-    \includegraphics[scale=.45]{lamb-oseen-vorticity.pdf}
-  \end{frame}
-
-  \begin{frame}
-    \frametitle{Lamb-Oseen vortex velocity field}
+    \frametitle{Velocity evaluation}
     \begin{align}
-      u_\theta(r, t) &= \frac{Γ_0}{2πr} \bigl(1 - \exp(-r^2/4νt)\bigr) \\
-      \vec{u} &= (-y, x)\cdot u_\theta(r, t)/r
+      ω^h_ε  &= \sum_p α_p  ζ_ε(\x - \x^h_p) \\
+      \vel^h &= \sum_p α_p \K_ε(\x - \x^h_p)
     \end{align}
-    \includegraphics[scale=.30]{lamb-oseen-velocity.pdf}
-  \end{frame}
-
-  \begin{frame}
-    \frametitle{Wingtip vortices as Lamb-Oseen vortices}
-    \includegraphics[scale=.45]{wingtip-vortices.png}
   \end{frame}
 
   \begin{frame}
@@ -288,9 +301,70 @@ using 2-D Vortex Methods}
     \end{align}
   \end{frame}
 
+\tikzstyle{innergrid}=[gray!80]
+\tikzstyle{tile}=[green!60!black, thick]
+\tikzstyle{sync}=[red!60!black, thick, dashed]
+\tikzstyle{thread}=[->, decorate, decoration={snake, amplitude=.6}]
+\tikzstyle{examplecell}=[fill=orange, opacity=.5]
+\tikzstyle{kernelcall}=[#1, rounded corners=2pt, very thick, pattern color=#1]
+\tikzstyle{kernelarrow}=[->, thick, out=90, in=180]
+\tikzstyle{imglabel}=[anchor=west, text opacity=1.0, fill=white, fill opacity=.5,
+                      text height=1ex, text depth=.25ex, rounded corners]
+\tikzstyle{row}=[fill=yellow!50!white]
+\def\N{43}
+
   \begin{frame}
-    \centering
-    \includegraphics[scale=.7, viewport=120 200 800 650]{work.pdf}
+    \begin{tikzpicture}[scale=.14, yscale=-1, font=\small]
+      \only<1> {
+        \def\myX{25.5}
+        \def\myY{39.5}
+        \fill[row] (0, \myY - .5) rectangle ++(\N, 1);
+        \draw[innergrid] (0, 0) grid ++(\N, \N);
+        \draw[tile] (0, 0) rectangle ++(\N, \N);
+        %\foreach \i in {0,...,44}
+        %  \node[anchor=east, font=\tiny] at (0, \i + .5) {\i};
+        %\foreach \j in {0,...,44}
+        %  \node[anchor=west, font=\tiny, rotate=90] at (\j + .5, 0) {\j};
+        \draw (-1, \myY) -- (\myX, \myY);
+        \draw (\myX, -1) -- (\myX, \myY);
+        \node [draw, red!80!black, very thick, circle, inner sep=.5ex] (interaction) at (\myX, \myY) {};
+        \node at (-2, \myY) {\(p\)};
+        \node at (\myX, -2) {\(q\)};
+
+        \draw (44.5, 10) node[imglabel, anchor=west] (interaction eq) {
+          \(
+           \left\{
+           \begin{aligned}
+             {\vec U}_{pq} &= α_q\,\K_ε(\x_p - \x_q) \\
+             A_{pq}        &= [α_q - α_p]\,η_ε(\x_p - \x_q) \\
+           \end{aligned}
+           \right.
+          \)
+        };
+        \draw[red!80!black, very thick, ->, out=-45, in=180] (interaction) to (interaction eq.west);
+
+        \draw (44.5, \myY) node[imglabel, anchor=west] (total eq) {
+          \(
+           \begin{aligned}
+             (u_p, v_p) &= \phantom{νε^{-2}}\sum_q \vec{U}_{pq} \\
+             \dot{α}_p  &=          νε^{-2} \sum_q A_{pq}
+           \end{aligned}
+          \)
+        };
+      }
+
+      \only<2-> {
+        \foreach \block in {0,1,...,6} {
+          \draw[innergrid] (0, \block * 9) grid      ++(\N, 8);
+          \draw[tile]      (0, \block * 9) rectangle ++(\N, 8);
+          \node[anchor=east] at (-4, 9 * \block + 4) {block \block};
+          \foreach\thread in {0,...,7} {
+            \node[anchor=east, font=\Tiny] at (0, 9 * \block + \thread + .5) {\thread};
+          }
+        }
+      }
+
+    \end{tikzpicture}
   \end{frame}
 
   \begin{frame}
@@ -307,6 +381,11 @@ using 2-D Vortex Methods}
   \end{frame}
 
   \begin{frame}
+    \centering
+    \includegraphics[scale=.7, viewport=120 200 800 650]{work.pdf}
+  \end{frame}
+
+  \begin{frame}
     \frametitle{Memory management}
     \begin{itemize}
       \item Global array of particles
@@ -318,6 +397,35 @@ using 2-D Vortex Methods}
         are loaded to shared memory
         at synchronization points
     \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \begin{tikzpicture}[scale=.5, yscale=-1]
+      \begin{scope}
+        \draw[thick, Green, fill=Green!30, rounded corners] (0, 0) rectangle (20, 10);
+        \node[anchor=north] at (5, 10) {device};
+        \foreach \i/\dx/\what in {0/1cm/read, 1/2.2cm/write} {
+          \begin{scope}[xshift=\dx, yshift=1cm]
+            \draw[thick, Orange, fill=Orange!30] (0, 0) rectangle ++(1, 8);
+            \draw[thin,  Orange, step=0.25cm]    (0, 0) grid      ++(1, 8);
+            \node[rotate=45, anchor=west, font=\tiny] at (0.5, 0) {\texttt{particles[\what]}};
+          \end{scope}
+        }
+        \begin{scope}[xshift=6cm, yshift=3cm]
+          \draw[thick, Blue, rounded corners, fill=Blue!30] (0, 0) rectangle (6, 4);
+          \node[font=\Large, Blue, anchor=west] at (6, 2) {MP\(_n\)};
+          \draw[thick, Orange, fill=Orange!30] (1, 1) rectangle ++(1, 2);
+          \draw[thin,  Orange, step=0.25cm]    (1, 1) grid      ++(1, 2);
+          \node[rotate=45, anchor=west, font=\tiny] at (1.5, 1) {\texttt{shared\_particles}};
+        \end{scope}
+
+      \end{scope}
+    \end{tikzpicture}
+  \end{frame}
+
+  \begin{frame}
+    \centering
+    \includegraphics[scale=.35]{execution-time.png}
   \end{frame}
 
 \end{document}
