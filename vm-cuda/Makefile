@@ -21,7 +21,7 @@ endif
 
 THRUSTHEADERS = thrust
 
-INCLUDEFLAGS = -I $(BOOSTHEADERS) -I $(CUDAHEADERS) -I $(THRUSTHEADERS)
+INCLUDEFLAGS = -I $(BOOSTHEADERS) -I $(CUDAHEADERS) #-I $(THRUSTHEADERS)
 LDFLAGS += -lm -lboost_program_options -lgomp -lcudart
 
 SRC = $(wildcard *.cpp)

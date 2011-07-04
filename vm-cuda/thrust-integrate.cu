@@ -1,9 +1,9 @@
 #include <vector>
 #include <algorithm>
 #include "vm.hpp"
-#include "thrust/host_vector.h"
-#include "thrust/device_vector.h"
-#include "thrust/transform.h"
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include <thrust/transform.h>
 #include <cmath>
 
 #define T 512 // threads per block
